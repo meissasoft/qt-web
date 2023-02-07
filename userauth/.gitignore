@@ -1,0 +1,32 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Django Debug Toolbar
+debug_toolbar/
+
+# Django Log files
+*.log
+
+# Django Media files
+media/
+
+# Django Static files
+static/
+
+# Database files
+*.sqlite3
+*.db
+
+# Django cache files
+*.cache
+
+# Django Migrations
+migrations/
+
+# Environments Variables
+.env
