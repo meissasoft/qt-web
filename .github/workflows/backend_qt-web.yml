@@ -43,22 +43,24 @@ jobs:
           !venv/
   
   deploy-to-webapp:
-    needs: build-and-test
     runs-on: ubuntu-latest
+    needs: build-and-test
+    environment:
+      name: 'Production'
+      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
 
     steps:
-      - uses: actions/download-artifact@v2
+      - name: Download artifact from build job
+        uses: actions/download-artifact@v2
         with:
           name: python-app
           path: .
-      
-      - name: Disable static collection and set migration command on App Service
-        uses: Azure/appservice-settings@v1
-        with:  
-          app-name: ${{ env.WEBAPP_NAME }}
-          app-settings-json: '[{ "name": "DISABLE_COLLECTSTATIC", "value": "true" }, { "name": "POST_BUILD_COMMAND",  "value": "python manage.py makemigrations && python manage.py migrate" }, { "name": "SCM_DO_BUILD_DURING_DEPLOYMENT", "value": "true" }, { "name": "DJANGO_ENV", "value": "production"}]'
-
-      - name: Deploy to App Service
+          
+      - name: 'Deploy to Azure Web App'
         uses: azure/webapps-deploy@v2
+        id: deploy-to-webapp
         with:
-          app-name: ${{ env.WEBAPP_NAME}}
+          app-name: 'qt-web'
+          slot-name: 'Production'
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_F383472B68A5403AA63E63841DEBAC00 }}
+
