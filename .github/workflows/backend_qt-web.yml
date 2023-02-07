@@ -6,7 +6,7 @@ name: Build and deploy Django app to Azure App Service
 on:
   push:
     branches: 
-      - master
+      - backend
 
 env:
   WEBAPP_NAME: 'my-python-app'  # Replace with the name of your Azure web app
