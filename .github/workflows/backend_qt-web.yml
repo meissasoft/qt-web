@@ -4,6 +4,7 @@
 name: Build and deploy Django app to Azure App Service
 
 on:
+  workflow_dispatch:
   push:
     branches: 
       - master
