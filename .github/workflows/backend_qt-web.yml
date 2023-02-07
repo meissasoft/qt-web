@@ -31,9 +31,6 @@ jobs:
     - name: Install dependencies
       run: pip install -r requirements.txt
 
-    - name: Collect static
-      run: python manage.py runserver
-
     - name: Run tests
       run: python manage.py test
     
