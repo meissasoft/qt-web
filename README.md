@@ -4,8 +4,7 @@ This README file provides information on how to run the qt-web on your local mac
 
 ## Description 
 
-This "qt-project" is a Django REST framework project with the root directory named "qt-web" for virtual env. It contains the main root directory named "userauth" and one app directory named "account"
-
+"The "qt-project" is a highly organized Django REST framework project, with the root directory named "qt-web." It features two key applications: the root app, "userauth," and an additional app, "account," designed specifically for user login, signup, and CRUD operations." 
 ## Prerequisites
 
 * Python 3.10
