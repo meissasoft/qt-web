@@ -116,3 +116,27 @@ class UserPasswordResetSerializer(serializers.Serializer):
         except DjangoUnicodeDecodeError as identifier:
             PasswordResetTokenGenerator().check_token(user, token)
             raise serializers.ValidationError('Token is not Valid or Expired')
+
+
+class UpdateRegisterUserSerializer(serializers.Serializer):
+    user_type = serializers.ChoiceField(choices=[('owner', 'Owner'), ('operator', 'Operator')],
+                                        default="operator")
+    email = serializers.EmailField(
+        max_length=255,
+        required=True,
+    )
+
+    class Meta:
+        model = User
+        fields = ['email', 'user_type']
+
+    def validate(self, attrs):
+        try:
+            email = attrs.get('email')
+            user_type = attrs.get('user_type')
+            user = User.objects.get(email=email)
+            user.user_type = user_type
+            user.save()
+            return attrs
+        except Exception as e:
+            raise serializers.ValidationError('Email id is not a valid email')

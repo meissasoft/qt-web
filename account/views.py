@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.views import APIView
 from account.serializers import SendPasswordResetEmailSerializer, UserChangePasswordSerializer, UserLoginSerializer, \
-    UserPasswordResetSerializer, UserProfileSerializer, UserRegistrationSerializer
+    UserPasswordResetSerializer, UserProfileSerializer, UserRegistrationSerializer, UpdateRegisterUserSerializer
 from django.contrib.auth import authenticate
 from account.renderers import UserRenderer
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -99,3 +99,15 @@ class UserPasswordResetView(CreateAPIView):
         serializer = UserPasswordResetSerializer(data=request.data, context={'uid': uid, 'token': token})
         serializer.is_valid(raise_exception=True)
         return Response({'msg': 'Password Reset Successfully'}, status=status.HTTP_200_OK)
+
+
+class UpdateRegisterUserView(CreateAPIView):
+    renderer_classes = [UserRenderer]
+    serializer_class = UpdateRegisterUserSerializer
+    allowed_methods = ('PUT',)
+    parser_classes = [MultiPartParser, FormParser]
+
+    def put(self, request, format=None):
+        serializer = UpdateRegisterUserSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        return Response({'msg': 'User type update successfully'}, status=status.HTTP_200_OK)
