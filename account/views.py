@@ -27,7 +27,7 @@ class UserRegistrationView(CreateAPIView):
     allowed_methods = ('POST',)
     parser_classes = [MultiPartParser, FormParser]
 
-    def post(self, request, format=None):
+    def post(self, request, format=None, **kwargs):
         serializer = UserRegistrationSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
@@ -41,11 +41,12 @@ class UserLoginView(CreateAPIView):
     allowed_methods = ('POST',)
     parser_classes = [MultiPartParser, FormParser]
 
-    def post(self, request, format=None):
+    def post(self, request, format=None, **kwargs):
         serializer = UserLoginSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         email = serializer.data.get('email')
         password = serializer.data.get('password')
+        import pdb; pdb.set_trace()
         user = authenticate(email=email, password=password)
         if user is not None:
             token = get_tokens_for_user(user)
@@ -71,7 +72,7 @@ class UserChangePasswordView(CreateAPIView):
     allowed_methods = ('POST',)
     parser_classes = [MultiPartParser, FormParser]
 
-    def post(self, request, format=None):
+    def post(self, request, format=None, **kwargs):
         serializer = UserChangePasswordSerializer(data=request.data, context={'user': request.user})
         serializer.is_valid(raise_exception=True)
         return Response({'msg': 'Password Changed Successfully'}, status=status.HTTP_200_OK)
@@ -83,7 +84,7 @@ class SendPasswordResetEmailView(CreateAPIView):
     allowed_methods = ('POST',)
     parser_classes = [MultiPartParser, FormParser]
 
-    def post(self, request, format=None):
+    def post(self, request, format=None, **kwargs):
         serializer = SendPasswordResetEmailSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         return Response({'msg': 'Password Reset link send. Please check your Email'}, status=status.HTTP_200_OK)
