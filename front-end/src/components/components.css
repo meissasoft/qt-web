@@ -1,0 +1,50 @@
+.maindiv{
+    width: 70%;
+    height: 99vh;
+    margin: auto;
+    /* border: 1px solid black; */
+}
+.maindiv1{
+    width: 100%;
+    height: 99vh;
+}
+
+.h1{
+    color: #45818e;
+    height: 100%;
+    text-align: center;
+    display: flex;
+    /* margin-bottom: 200px; */
+    justify-content: center;
+    align-items: center;
+    line-height: 100px;
+}
+.text{
+    text-align: center;
+    font-size: 30px;
+}
+.btn{
+    padding: 1rem 4rem;
+    background-color: #45818e;
+    color: white;
+    border-radius: 10px;
+    font-size: 20px;
+    /* display: flex;
+    text-align: center;
+    justify-content: center; */
+    /* margin-right: 60px; */
+}
+.recharts-cartesian-axis-tick{
+    display: none;
+}
+
+.recharts-wrapper{
+    height: 100%;
+    width: 100%;
+    background-color: white;
+    border : 2px solid black;
+}
+.recharts-wrapper>svg{
+    width: 100%;
+    height: 100%;
+}
