@@ -44,6 +44,8 @@ class User(AbstractBaseUser):
         unique=True,
     )
     name = models.CharField(max_length=200)
+    user_type = models.CharField(max_length=10, choices=[('owner', 'Owner'), ('operator', 'Operator')],
+                                 default="operator")
     is_active = models.BooleanField(default=True)
     is_admin = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -52,7 +54,7 @@ class User(AbstractBaseUser):
     objects = UserManager()
 
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['name']
+    REQUIRED_FIELDS = ['name', 'user_type']
 
     def __str__(self):
         return self.email
