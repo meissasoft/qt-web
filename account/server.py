@@ -1,4 +1,5 @@
 import socket
+import random
 
 
 class Server:
@@ -15,13 +16,13 @@ class Server:
         while True:
             conn, addr = server_socket.accept()
             message = conn.recv(1024).decode()
+            wavelength = random.random()
+            energy = random.random()
             if message == 'take scan':
-                conn.sendall('ok'.encode())
+                conn.sendall(f"{'wavelength': {wavelength},'energy': {energy}}".encode())
             conn.close()
 
 
 if __name__ == '__main__':
     server = Server()
     server.start()
-
-

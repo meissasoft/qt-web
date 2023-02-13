@@ -74,3 +74,9 @@ class User(AbstractBaseUser):
         "Is the user a member of staff?"
         # Simplest possible answer: All admins are staff
         return self.is_admin
+
+
+class ScanData(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    wavelength = models.FloatField()
+    energy = models.FloatField()

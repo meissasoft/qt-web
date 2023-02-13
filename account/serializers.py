@@ -1,5 +1,6 @@
+from .client import Client
 from rest_framework import serializers
-from account.models import User
+from account.models import User, ScanData
 from django.utils.encoding import smart_str, force_bytes, DjangoUnicodeDecodeError
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
@@ -132,6 +133,31 @@ class UpdateRegisterUserSerializer(serializers.Serializer):
 
     def validate(self, attrs):
         try:
+            email = attrs.get('email')
+            user_type = attrs.get('user_type')
+            user = User.objects.get(email=email)
+            user.user_type = user_type
+            user.save()
+            return attrs
+        except Exception as e:
+            raise serializers.ValidationError('Email id is not a valid email')
+
+
+class ScanDataSerializer(serializers.ModelSerializer):
+    is_scan = serializers.ChoiceField(choices=[('yes', 'Yes'), ('no', 'No')],
+                                      default="no")
+
+    class Meta:
+        model = ScanData
+        fields = ['is_scan']
+
+    def validate(self, attrs):
+        try:
+            is_scan = attrs.get('is_scan')
+            if is_scan == "yes":
+                client = Client()
+                response = client.send_message('take scan')
+                client.client_socket.close()
             email = attrs.get('email')
             user_type = attrs.get('user_type')
             user = User.objects.get(email=email)

@@ -1,11 +1,15 @@
 from rest_framework.generics import CreateAPIView
+from rest_framework import viewsets
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.response import Response
 from rest_framework import status
 from django.shortcuts import render
 from rest_framework.views import APIView
+
+from account.models import ScanData
 from account.serializers import SendPasswordResetEmailSerializer, UserChangePasswordSerializer, UserLoginSerializer, \
-    UserPasswordResetSerializer, UserProfileSerializer, UserRegistrationSerializer, UpdateRegisterUserSerializer
+    UserPasswordResetSerializer, UserProfileSerializer, UserRegistrationSerializer, UpdateRegisterUserSerializer, \
+    ScanDataSerializer
 from django.contrib.auth import authenticate
 from account.renderers import UserRenderer
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -116,3 +120,15 @@ class UpdateRegisterUserView(CreateAPIView):
 
 def lobby(request):
     return render(request, 'account/lobby.html')
+
+
+class ScanDataViewSet(CreateAPIView):
+    renderer_classes = [UserRenderer]
+    serializer_class = ScanDataSerializer
+    allowed_methods = ('POST',)
+    parser_classes = [MultiPartParser, FormParser]
+
+    def post(self, request, format=None):
+        serializer = ScanDataSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        return Response({'msg': 'Password Reset Successfully'}, status=status.HTTP_200_OK)
