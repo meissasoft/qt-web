@@ -2,6 +2,7 @@ from rest_framework.generics import CreateAPIView
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.response import Response
 from rest_framework import status
+from django.shortcuts import render
 from rest_framework.views import APIView
 from account.serializers import SendPasswordResetEmailSerializer, UserChangePasswordSerializer, UserLoginSerializer, \
     UserPasswordResetSerializer, UserProfileSerializer, UserRegistrationSerializer, UpdateRegisterUserSerializer
@@ -46,7 +47,6 @@ class UserLoginView(CreateAPIView):
         serializer.is_valid(raise_exception=True)
         email = serializer.data.get('email')
         password = serializer.data.get('password')
-        import pdb; pdb.set_trace()
         user = authenticate(email=email, password=password)
         if user is not None:
             token = get_tokens_for_user(user)
@@ -112,3 +112,7 @@ class UpdateRegisterUserView(CreateAPIView):
         serializer = UpdateRegisterUserSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         return Response({'msg': 'User type update successfully'}, status=status.HTTP_200_OK)
+
+
+def lobby(request):
+    return render(request, 'account/lobby.html')
