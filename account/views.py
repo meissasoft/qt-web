@@ -123,12 +123,13 @@ def lobby(request):
 
 
 class ScanDataViewSet(CreateAPIView):
+    permission_classes = [IsAuthenticated]
     renderer_classes = [UserRenderer]
     serializer_class = ScanDataSerializer
     allowed_methods = ('POST',)
     parser_classes = [MultiPartParser, FormParser]
 
     def post(self, request, format=None):
-        serializer = ScanDataSerializer(data=request.data)
+        serializer = ScanDataSerializer(data=request.data, context={'request': request})
         serializer.is_valid(raise_exception=True)
-        return Response({'msg': 'Password Reset Successfully'}, status=status.HTTP_200_OK)
+        return Response({'msg': 'Data Scanned Successfully'}, status=status.HTTP_201_CREATED)

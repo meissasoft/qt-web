@@ -18,8 +18,10 @@ class Server:
             message = conn.recv(1024).decode()
             wavelength = random.random()
             energy = random.random()
+            scan_data = {'wavelength': wavelength,'energy': energy}
             if message == 'take scan':
-                conn.sendall(f"{'wavelength': {wavelength},'energy': {energy}}".encode())
+                conn.sendall(f"{scan_data}".encode())
+                # conn.sendall("ok".encode())
             conn.close()
 
 

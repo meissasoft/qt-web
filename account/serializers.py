@@ -146,6 +146,8 @@ class UpdateRegisterUserSerializer(serializers.Serializer):
 class ScanDataSerializer(serializers.ModelSerializer):
     is_scan = serializers.ChoiceField(choices=[('yes', 'Yes'), ('no', 'No')],
                                       default="no")
+    # wavelength = serializers.FloatField()
+    # energy = serializers.FloatField()
 
     class Meta:
         model = ScanData
@@ -157,12 +159,15 @@ class ScanDataSerializer(serializers.ModelSerializer):
             if is_scan == "yes":
                 client = Client()
                 response = client.send_message('take scan')
+                scan_data = eval(response)
                 client.client_socket.close()
-            email = attrs.get('email')
-            user_type = attrs.get('user_type')
-            user = User.objects.get(email=email)
-            user.user_type = user_type
-            user.save()
-            return attrs
+                # Get the user ID from the Bearer token
+                user_id = self.context['request'].user.id
+                user_instance = User.objects.get(id=user_id)
+                scan_data['user'] = user_instance
+                response = ScanData.objects.create(**scan_data)
+                return response
+            elif is_scan == "no":
+                raise Exception('Error: Select yes if you want to get scan data')
         except Exception as e:
-            raise serializers.ValidationError('Email id is not a valid email')
+            raise serializers.ValidationError(e)
