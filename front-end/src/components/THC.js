@@ -74,7 +74,7 @@ function THC({ goToPage }) {
           }}
         >
           <h1>
-            <u>Filename</u>
+            {/* <u>Filename</u> */}
           </h1>
         </div>
         <div style={{ display: "flex" }}>
@@ -83,8 +83,8 @@ function THC({ goToPage }) {
           </h2>
           <div id="svg1">
             <LineChart
-              width={950}
-              height={490}
+              width={550}
+              height={390}
               data={data}
               margin={{ top: 5, right: 20, bottom: 5, left: 0 }}
             >

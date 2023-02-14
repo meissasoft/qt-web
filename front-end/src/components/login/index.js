@@ -23,29 +23,30 @@ function Login({ goToPage, setToken }) {
   };
 
   const clickLogin = async () => {
-    if (obj.email.length === 0) {
-      setErrors({ ...errors, email: "Email is required" });
-      return;
-    }
-    if (obj.password.length === 0) {
-      setErrors({ ...errors, password: "Password is required" });
-      return;
-    }
+    // if (obj.email.length === 0) {
+    //   setErrors({ ...errors, email: "Email is required" });
+    //   return;
+    // }
+    // if (obj.password.length === 0) {
+    //   setErrors({ ...errors, password: "Password is required" });
+    //   return;
+    // }
     try {
-      const resp = await axios.post(
-        REACT_APP_API_URL + "/user/login/",
-        {
-          email: obj["email"],
-          password: obj["password"],
-        },
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
-      if (resp.data && resp.status === 200) {
-        setToken(resp.data.token.access);
+      // const resp = await axios.post(
+      //   REACT_APP_API_URL + "/user/login/",
+      //   {
+      //     email: obj["email"],
+      //     password: obj["password"],
+      //   },
+      //   {
+      //     headers: {
+      //       "Content-Type": "multipart/form-data",
+      //     },
+      //   }
+      // );
+      // if (resp.data && resp.status === 200) {
+      if (true) {
+        // setToken(resp.data.token.access);
         goToPage(3);
       }
     } catch (err) {

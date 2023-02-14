@@ -94,6 +94,7 @@ form {
 
 .btn:hover {
   background-color: white;
-  color: #45818e;
+  color: rgb(0, 132, 255);
   font-weight: 700;
+  border-color: rgb(0, 132, 255); ;
 }

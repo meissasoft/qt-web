@@ -4,8 +4,8 @@ function Reference({goToPage}) {
   return (
     <div className='maindiv'>
       <div style={{display:"flex" , justifyContent:"center" , alignItems:"center" ,flexDirection :"column" , height:"100%"}}>
-        <h1 style={{ fontSize:"30px" , fontWeight:"500"}}>Is the pipetrain solvent-cleaned</h1>
-        <p >and full of air?</p>
+        <h1 style={{ fontSize:"30px" , fontWeight:"500"}}>Is the pipetrain solvent-cleaned<br />
+        and full of air?</h1>
 <p style={{fontSize:"20px" , }}>A reference signal needs to be obtained and these <br/>
 
 conditions must be met</p>

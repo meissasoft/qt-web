@@ -45,44 +45,13 @@ function DisplayThc({goToPage}) {
         //   amt: 2100
         }
       ];
+      
   return (
     <div className="maindiv1">
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-         
-        }}
-      >
-        <h1 style={{ marginTop:"2rem" , marginLeft:"3rem"}}>
-          <u>Filename</u>
-        </h1>
-        <div>
-          <p style={{ fontSize: "30px", fontWeight: "400", marginRight:"3rem",marginTop:"2rem" }}>
-            Elapsed time: <span style={{ color: "#45818e" }}>93:81</span>
-          </p>
-        </div>
-      </div>
-      <div style={{display: "flex", margin: "0rem 2rem", marginTop: "3rem" , justifyContent:"space-between"}}>
-        <div style={{ width: "60%", height: "60vh", backgroundColor: "#45818e" }}>
-          <p style={{ color: "white", fontSize: "30px" }}>Total THC</p>
-            <p
-              style={{
-                color: "white",
-                fontSize: "24vw",
-                position: "relative",
-                bottom: "6rem"
-               }}
-            >
-              31.6
-            <span style={{ color: "white", fontSize: '9vw' }}>%</span>
-            </p>
-    
-        </div>
-
-    <h2 style={{transform:"rotate(270deg)" , marginRight:"-660px"}}>THC Prediction (%)</h2>
-        <div style={{ width: "30%"  }}>
+      
+      <div style={{display: "flex", flexDirection:"column", margin: "0rem 2rem", marginTop: "3rem" , justifyContent:"space-between"}}>
+      <div style={{ width: "30%"  }}>
+      <h2 style={{transform:"rotate(270deg)" , marginRight:"-660px"}}>THC Prediction (%)</h2>
         <LineChart width={550} height={390}  data={data} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
    <Line type="monotone" dataKey="uv" stroke="#000000" />
     {/* <CartesianGrid stroke="#ccc" strokeDasharray="0 0" /> */}
@@ -93,8 +62,35 @@ function DisplayThc({goToPage}) {
   <h2>Time (minutes) </h2>
 
         </div>
+        <divc style={{color:"black",alignItems:"center", marginLeft:"150px", fontSize:"50px"}} >
+          TOTAL THC
+        </divc>
+        <div style={{ width: "30%", height: "20vh", backgroundColor:"#87C1FF",position:"relative",borderRadius:"40px",boxShadow:"2px 2px #D3D3D3" }}>
+          {/* <p style={{ color: "white", fontSize: "30px" }}>Total THC</p> */}
+            <p
+              style={{
+                color: "white",
+                fontSize: "100px",
+                position: "absolute",
+               marginTop:"20px",
+               fontWeight:"bold",
+               marginLeft:"150px",
+                alignItems:"center",
+                
+               }}
+            >
+              31.6
+            <span style={{ color: "white", fontSize: '100px', fontWeight:"bold" }}>%</span>
+            </p>
+            
+            <button className="btn" style={{float:"right" ,position:"relative" , top:"15rem",left:"5px"}} onClick={()=>goToPage(12)}>Cancel</button>
+    
+        </div>
+
+   
+        
       </div>
-      <button className="btn" style={{float:"right" ,position:"relative" , top:"10rem",right:"1rem"}} onClick={()=>goToPage(12)}>Cancel</button>
+      
     </div>
   );
 }
