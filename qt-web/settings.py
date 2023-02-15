@@ -49,8 +49,8 @@ ASGI_APPLICATION = 'qt-web.asgi.application'
 
 CHANNEL_LAYERS = {
     'default': {
-        'BACKEND': 'channels.layers.InMemoryChannelLayer'
-    }
+        'BACKEND': 'channels.layers.InMemoryChannelLayer',
+    },
 }
 
 MIDDLEWARE = [

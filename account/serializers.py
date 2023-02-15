@@ -1,6 +1,6 @@
 from .client import Client
 from rest_framework import serializers
-from account.models import User, ScanData
+from account.models import User, ScanData, UserConnection
 from django.utils.encoding import smart_str, force_bytes, DjangoUnicodeDecodeError
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
@@ -143,11 +143,27 @@ class UpdateRegisterUserSerializer(serializers.Serializer):
             raise serializers.ValidationError('Email id is not a valid email')
 
 
+class UserConnectionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserConnection
+        fields = ['machine_name', 'mac_address']
+
+    def validate(self, attrs):
+        try:
+            request_data = dict(attrs)
+            # Get the user ID from the Bearer token
+            user_id = self.context['request'].user.id
+            user_instance = User.objects.get(id=user_id)
+            request_data['user'] = user_instance
+            response = UserConnection.objects.create(**request_data)
+            return response
+        except Exception as e:
+            raise serializers.ValidationError(e)
+
+
 class ScanDataSerializer(serializers.ModelSerializer):
     is_scan = serializers.ChoiceField(choices=[('yes', 'Yes'), ('no', 'No')],
                                       default="no")
-    # wavelength = serializers.FloatField()
-    # energy = serializers.FloatField()
 
     class Meta:
         model = ScanData
@@ -163,8 +179,8 @@ class ScanDataSerializer(serializers.ModelSerializer):
                 client.client_socket.close()
                 # Get the user ID from the Bearer token
                 user_id = self.context['request'].user.id
-                user_instance = User.objects.get(id=user_id)
-                scan_data['user'] = user_instance
+                user_connection_instance = UserConnection.objects.get(connection_user=user_id)
+                scan_data['connection_user'] = user_connection_instance
                 response = ScanData.objects.create(**scan_data)
                 return response
             elif is_scan == "no":

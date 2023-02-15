@@ -9,7 +9,7 @@ from rest_framework.views import APIView
 from account.models import ScanData
 from account.serializers import SendPasswordResetEmailSerializer, UserChangePasswordSerializer, UserLoginSerializer, \
     UserPasswordResetSerializer, UserProfileSerializer, UserRegistrationSerializer, UpdateRegisterUserSerializer, \
-    ScanDataSerializer
+    ScanDataSerializer, UserConnectionSerializer
 from django.contrib.auth import authenticate
 from account.renderers import UserRenderer
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -122,14 +122,27 @@ def lobby(request):
     return render(request, 'account/lobby.html')
 
 
-class ScanDataViewSet(CreateAPIView):
-    permission_classes = [IsAuthenticated]
+class UserConnectionView(CreateAPIView):
+    # permission_classes = [IsAuthenticated]
+    renderer_classes = [UserRenderer]
+    serializer_class = UserConnectionSerializer
+    allowed_methods = ('POST',)
+    parser_classes = [MultiPartParser, FormParser]
+
+    def post(self, request, format=None, **kwargs):
+        serializer = UserConnectionSerializer(data=request.data, context={'request': request})
+        serializer.is_valid(raise_exception=True)
+        return Response({'msg': 'User Connect Successfully'}, status=status.HTTP_201_CREATED)
+
+
+class ScanDataView(CreateAPIView):
+    # permission_classes = [IsAuthenticated]
     renderer_classes = [UserRenderer]
     serializer_class = ScanDataSerializer
     allowed_methods = ('POST',)
     parser_classes = [MultiPartParser, FormParser]
 
-    def post(self, request, format=None):
+    def post(self, request, format=None, **kwargs):
         serializer = ScanDataSerializer(data=request.data, context={'request': request})
         serializer.is_valid(raise_exception=True)
         return Response({'msg': 'Data Scanned Successfully'}, status=status.HTTP_201_CREATED)

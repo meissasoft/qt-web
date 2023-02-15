@@ -76,7 +76,16 @@ class User(AbstractBaseUser):
         return self.is_admin
 
 
-class ScanData(models.Model):
+class UserConnection(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
+    machine_name = models.CharField(max_length=255, default=None)
+    mac_address = models.CharField(max_length=255, default=None)
+    status_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    last_status = models.DateTimeField(auto_now=True)
+
+
+class ScanData(models.Model):
+    connection_user = models.ForeignKey(UserConnection, on_delete=models.CASCADE)
     wavelength = models.FloatField()
     energy = models.FloatField()
