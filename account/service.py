@@ -11,28 +11,23 @@ import websockets
 class DjangoWebsocketService:
     def __init__(self, django_server_url):
         self.django_server_url = django_server_url
+        self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.token = None
-        self.ws = None
+        self.host = '127.0.0.1'
+        self.port = 4444
+        self.ws = 'ws://127.0.0.1:8000/ws/socket-server/'
 
     def login(self, username, password):
         login_data = {
-            'email': 'software@gmail.com',
-            'password': '$@lm@n123',
+            'email': username,
+            'password': password,
         }
-        login_response = self._send_request('/api/user/login/', login_data)
+        login_response = self._send_request(login_data)
         self.token = login_response.get('token').get('access')
         if not self.token:
             raise Exception('Login failed')
 
-    def connect(self):
-        if not self.token:
-            raise Exception('Not logged in')
-        websocket_url = self.django_server_url.replace('http', 'ws') + '/ws/' + 'socket-server/'
-
-        self.ws = websockets.connect(websocket_url)
-        # self.ws.run_forever()
-
-    def _send_request(self, path, payload):
+    def _send_request(self, payload):
         headers = {}
         if self.token:
             headers['Authorization'] = f'Token {self.token}'
@@ -40,6 +35,12 @@ class DjangoWebsocketService:
                                     headers=headers,
                                     data=payload)
         return response.json()
+
+    def send_message_to_itgnir(self, message):
+        self.client_socket.connect((self.host, self.port))
+        self.client_socket.sendall(message.encode())
+        response = self.client_socket.recv(1024).decode()
+        return response
 
     def receive_loop(self):
         while True:
@@ -59,15 +60,12 @@ class DjangoWebsocketService:
         }
         async with websockets.connect(self.django_server_url + '/ws/socket-server/') as websocket:
             await websocket.send(json.dumps(request_data))
-            # print(f'Sent message: {request_data}')
-        # self.ws.send(json.dumps(request_data))
 
     async def amain(self):
         await self.send_system_data_request()
 
     def main(self):
-        self.login('username', 'password')
-        self.connect()
+        self.login('software@gmail.com', '$@lm@n123')
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
         try:
@@ -76,7 +74,8 @@ class DjangoWebsocketService:
             pass
         finally:
             loop.close()
-        threading.Thread(target=self.receive_loop).start()
+        self.send_message_to_itgnir('take scan')
+        # threading.Thread(target=self.receive_loop).start()
         # threading.Thread(target=self.send_loop).start()
 
 

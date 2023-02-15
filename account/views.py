@@ -132,7 +132,7 @@ class UserConnectionView(CreateAPIView):
     def post(self, request, format=None, **kwargs):
         serializer = UserConnectionSerializer(data=request.data, context={'request': request})
         serializer.is_valid(raise_exception=True)
-        return Response({'msg': 'User Connect Successfully'}, status=status.HTTP_201_CREATED)
+        return Response({'msg': 'User Connection Established Successfully'}, status=status.HTTP_201_CREATED)
 
 
 class ScanDataView(CreateAPIView):
