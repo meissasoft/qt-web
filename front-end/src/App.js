@@ -38,9 +38,7 @@ function App() {
     12: <Sure goToPage={goToPage} />,
   };
 
-  console.log({ token });
-
-  return <div className="body1">{content[page]}</div>;
+  return <div>{content[page]}</div>;
 }
 
 export default App;

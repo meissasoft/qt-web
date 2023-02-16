@@ -2,7 +2,7 @@ import React from 'react'
 
 function EnsureClean({goToPage}) {
   return (
-    <div className='maindiv'>
+    <div className='maindiv background'>
       <div style={{display:"flex" , justifyContent:"center" , alignItems:"center" ,flexDirection :"column" , height:"100%"}}>
         <p style={{ fontSize:"30px" , fontWeight:"500" , marginBottom:"2rem"}}>Are you sure?</p>
 <p style={{fontSize:"22px" ,  marginTop:"-18px"}}>FILENAME</p>

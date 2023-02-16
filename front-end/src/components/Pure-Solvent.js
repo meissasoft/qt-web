@@ -2,7 +2,7 @@ import React from 'react'
 
 function PureSolvent({goToPage}) {
   return (
-    <div className='maindiv'>
+    <div className='maindiv background'>
     <div style={{display:"flex" , justifyContent:"center" , alignItems:"center" ,flexDirection :"column" , height:"100%"}}>
       <p style={{ fontSize:"30px" , fontWeight:"500"}}>Is the pipetrain solvent running clean <br/>
 solvent? (no biomass added)</p>

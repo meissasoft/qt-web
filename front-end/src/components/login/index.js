@@ -56,7 +56,7 @@ function Login({ goToPage, setToken }) {
 
   return (
     <div className="h-full">
-      <div className="container h-full" id="mainclass">
+      <div className="container background" id="mainclass">
         <div className="form mt-5">
           <h4 className="login">Login to your account </h4>
           <div className="col-md-3">

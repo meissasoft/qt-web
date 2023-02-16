@@ -1,22 +1,17 @@
 import React, { useEffect } from "react";
+import newton from "../assets/images/cover-image.png";
 import "./components.css";
 
-function Intro({goToPage}) {
-
+function Intro({ goToPage }) {
   useEffect(() => {
     setTimeout(() => {
-        goToPage(1)
+      goToPage(1);
     }, [1000]);
   });
 
   return (
-    <div className="maindiv">
-      <div className="h1">
-        <h1 className="Welcometag">
-          Welcome to Product -to-be-Named <br /> by
-          <br /> Company-to-be-named{" "}
-        </h1>
-      </div>
+    <div className="maindiv background">
+      <img src={newton} alt=""  />
     </div>
   );
 }

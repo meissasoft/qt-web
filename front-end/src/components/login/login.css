@@ -1,17 +1,10 @@
-* {
-  margin: 0;
-  padding: 0;
-}
-
-body {
-  background-color: white;
-}
-
 #mainclass {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  width: 100%;
+  height: 100vh;
 }
 
 .btn-login {
@@ -20,7 +13,7 @@ body {
   margin-bottom: 30px;
 }
 .form-control {
-  border: 2px solid #45818e;
+  border: 2px solid #3A3A3A;
   border-radius: 200px;
   font-size: large;
   background-color: #ffffff;
@@ -33,7 +26,7 @@ body {
 }
 
 .form-control:focus-visible {
-  border: 2px solid #45818e;
+  border: 2px solid #3A3A3A;
   outline: none;
 }
 .form-select {
@@ -47,7 +40,7 @@ body {
   box-shadow: none;
 }
 .form-label {
-  color: #45818e;
+  color: #3A3A3A;
   font-weight: 700;
   margin-bottom: 0.5rem;
 }
@@ -57,16 +50,6 @@ body {
   justify-content: space-around;
 }
 
-/* .password-container{
-    width: 400px;
-    position: relative;
-  }
-  .password-container input[type="password"],
-  .password-container input[type="text"]{
-    width: 100%;
-    padding: 12px 36px 12px 12px;
-    box-sizing: border-box;
-  } */
 .fa-eye {
   position: absolute;
   top: 60%;
@@ -79,9 +62,10 @@ body {
   font-weight: 800;
   display: flex;
   justify-content: center;
-  color: #45818e;
+  color: #3A3A3A;
   font-size: 2.5rem;
 }
+
 form {
   margin-top: 4rem;
 }
@@ -97,4 +81,10 @@ form {
   color: rgb(0, 132, 255);
   font-weight: 700;
   border-color: rgb(0, 132, 255); ;
+}
+
+
+@media only screen and (max-width: 420px){
+  
+
 }
