@@ -1,6 +1,9 @@
 .App {
   text-align: center;
 }
+body{
+  background-color: #f1f0f3 !important;
+}
 
 .App-logo {
   height: 40vmin;
@@ -37,18 +40,41 @@
   }
 }
 
-.body1{
+.body1 {
   background-color: #e0e0e0;
   border: 2px solid black;
   height: 99vh;
 }
 
-
 * {
   margin: 0px;
   box-sizing: border-box;
+  font-family: "Expansiva", sans-serif;
 }
 
-.h-full{
+.h-full {
   height: 100%;
+}
+
+@font-face {
+  font-family: "Expansiva", sans-serif;
+  src: url("./assets/fonts/Expansiva.otf") format("opentype");
+}
+
+@font-face {
+  font-family: "Expansiva", sans-serif;
+  font-weight: bold;
+  src: url("./assets/fonts/Expansiva-bold.otf") format("opentype");
+}
+
+.background {
+  background-image: url("./assets/images/background-splash.png");
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+@media only screen and (max-width: 420px){
+  * {
+    width: 500px;
+  }
 }
