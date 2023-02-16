@@ -62,11 +62,43 @@ class DjangoWebsocketService:
             await websocket.send(json.dumps(request_data))
             response = await websocket.recv()
             data = json.loads(response)
-            if data['is_scan'] == 'yes':
-                scan_data = self.send_message_to_itgnir('take scan')
+            return data
+
+            # threading.Thread(target=self.take_scan_loop(data, websocket)).start()
+
+    async def take_scan_loop(self, data):
+        async with websockets.connect(self.django_server_url + '/ws/socket-server/') as websocket:
+            while True:
+                if data['is_scan'] == 'yes':
+                    scan_data = self.send_message_to_itgnir('take scan')
+                    scan_data = eval(scan_data)
+                    scan_data['token'] = self.token
+                    scan_data['is_scan'] = 'yes'
+                    await websocket.send(json.dumps(scan_data))
+                response = await websocket.recv()
+                data = json.loads(response)
+                return data
+
+    async def update_user_connection_status_loop(self):
+        async with websockets.connect(self.django_server_url + '/ws/socket-server/') as websocket:
+            while True:
+                # send a "yes" message every minute to indicate that the connection is still alive
+                request_data = {"is_connection_alive": "yes", "token": self.token}
+                await websocket.send(json.dumps(request_data))
+                await asyncio.sleep(60)
+
 
     async def amain(self):
-        await self.send_system_data_request()
+        response = await self.send_system_data_request()
+        # thread_1 = threading.Thread(target=self.take_scan_loop, args=(response,))
+        # thread_2 = threading.Thread(target=self.update_user_connection_status_loop)
+        # thread_1.start()
+        # thread_2.start()
+        scan_data = await self.take_scan_loop(response)
+        connection_fun = await self.update_user_connection_status_loop()
+        print("")
+        # threading.Thread(target=self.take_scan_loop(response)).start()
+        # threading.Thread(target=self.send_loop).start()
 
     def main(self):
         self.login('software@gmail.com', '$@lm@n123')
@@ -78,7 +110,7 @@ class DjangoWebsocketService:
             pass
         finally:
             loop.close()
-        # threading.Thread(target=self.receive_loop).start()
+        # threading.Thread(target=self._receive_loop).start()
         # threading.Thread(target=self.send_loop).start()
 
 

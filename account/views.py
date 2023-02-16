@@ -1,9 +1,14 @@
+from datetime import datetime
+
+from django.http import Http404
+from django.utils import timezone
 from rest_framework.generics import CreateAPIView
 from rest_framework import viewsets
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.response import Response
 from rest_framework import status
 from django.shortcuts import render
+from account.models import User, UserConnection
 from rest_framework.views import APIView
 
 from account.models import ScanData
@@ -126,13 +131,65 @@ class UserConnectionView(CreateAPIView):
     # permission_classes = [IsAuthenticated]
     renderer_classes = [UserRenderer]
     serializer_class = UserConnectionSerializer
-    allowed_methods = ('POST',)
+    allowed_methods = ('POST', 'PUT')
     parser_classes = [MultiPartParser, FormParser]
 
     def post(self, request, format=None, **kwargs):
         serializer = UserConnectionSerializer(data=request.data, context={'request': request})
         serializer.is_valid(raise_exception=True)
         return Response({'msg': 'User Connection Established Successfully'}, status=status.HTTP_201_CREATED)
+
+    def put(self, request, *args, **kwargs):
+        try:
+            user_conn = self.get_object()
+        except Http404:
+            return Response({"error": "UserConnection not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        serializer = UserConnectionSerializer(user_conn, data=request.data, partial=True)
+        if serializer.is_valid():
+            if "is_connection_alive" in request.data:
+                if request.data.get("is_connection_alive") == "yes":
+                    serializer.validated_data["status_active"] = True
+                    serializer.validated_data["last_status"] = timezone.now()
+                else:
+                    serializer.validated_data["status_active"] = False
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def get_object(self):
+        user_id = self.request.user.id
+        user_conn = UserConnection.objects.get(id=user_id)
+        return user_conn
+
+
+# class UserConnectionView(CreateAPIView):
+#     # permission_classes = [IsAuthenticated]
+#     renderer_classes = [UserRenderer]
+#     serializer_class = UserConnectionSerializer
+#     allowed_methods = ('POST', 'PUT')
+#     parser_classes = [MultiPartParser, FormParser]
+#
+#     def post(self, request, format=None, **kwargs):
+#         serializer = UserConnectionSerializer(data=request.data, context={'request': request})
+#         serializer.is_valid(raise_exception=True)
+#         return Response({'msg': 'User Connection Established Successfully'}, status=status.HTTP_201_CREATED)
+#
+#     def put(self, request, *args, **kwargs):
+#         try:
+#             user_conn = self.get_object()
+#         except Http404:
+#             return Response({"error": "UserConnection not found"}, status=status.HTTP_404_NOT_FOUND)
+#
+#         serializer = UserConnectionSerializer(data=request.data, context={'request': request})
+#         serializer.is_valid(raise_exception=True)
+#         serializer.save()
+#         return Response({'msg': 'User Connection Updated Successfully'}, status=status.HTTP_200_OK)
+#
+#     def get_object(self):
+#         user_id = self.request.user.id
+#         user_conn = UserConnection.objects.get(id=user_id)
+#         return user_conn
 
 
 class ScanDataView(CreateAPIView):

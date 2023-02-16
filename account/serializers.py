@@ -1,3 +1,5 @@
+import datetime
+
 from .client import Client
 from rest_framework import serializers
 from account.models import User, ScanData, UserConnection
@@ -144,9 +146,12 @@ class UpdateRegisterUserSerializer(serializers.Serializer):
 
 
 class UserConnectionSerializer(serializers.ModelSerializer):
+    status_active = serializers.BooleanField(default=True)
+    last_status = serializers.DateTimeField(read_only=True)
+
     class Meta:
         model = UserConnection
-        fields = ['machine_name', 'mac_address']
+        fields = ['machine_name', 'mac_address', 'status_active', 'last_status']
 
     def validate(self, attrs):
         try:
@@ -161,27 +166,52 @@ class UserConnectionSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(e)
 
 
-class ScanDataSerializer(serializers.ModelSerializer):
-    is_scan = serializers.ChoiceField(choices=[('yes', 'Yes'), ('no', 'No')],
-                                      default="no")
+# class UserConnectionSerializer(serializers.ModelSerializer):
+#     status_active = serializers.BooleanField(default=True)
+#     last_status = serializers.DateTimeField(read_only=True)
+#
+#     class Meta:
+#         model = UserConnection
+#         fields = ['machine_name', 'mac_address', 'status_active', 'last_status']
+#
+#     def validate(self, attrs):
+#         try:
+#             request_data = dict(attrs)
+#             user_id = self.context['request'].user.id
+#             user_instance = User.objects.get(id=user_id)
+#             request_data['user'] = user_instance
+#             response = UserConnection.objects.create(**request_data)
+#             return response
+#         except Exception as e:
+#             raise serializers.ValidationError(e)
+#
+#     def update(self, instance, validated_data):
+#         is_connection_alive = validated_data.get('is_connection_alive')
+#         if is_connection_alive == 'yes':
+#             validated_data['status_active'] = True
+#         else:
+#             validated_data['status_active'] = False
+#         instance = super().update(instance, validated_data)
+#         instance.last_status = datetime.datetime.now()
+#         instance.save()
+#         return instance
 
+
+class ScanDataSerializer(serializers.ModelSerializer):
     class Meta:
         model = ScanData
-        fields = ['is_scan']
+        fields = ['wavelength', 'energy']
 
     def validate(self, attrs):
+        request_data = dict(attrs)
         try:
-            is_scan = attrs.get('is_scan')
+            is_scan = self.context['request'].data['is_scan']
             if is_scan == "yes":
-                client = Client()
-                response = client.send_message('take scan')
-                scan_data = eval(response)
-                client.client_socket.close()
-                # Get the user ID from the Bearer token
                 user_id = self.context['request'].user.id
-                user_connection_instance = UserConnection.objects.get(connection_user=user_id)
-                scan_data['connection_user'] = user_connection_instance
-                response = ScanData.objects.create(**scan_data)
+                user_instance = User.objects.get(id=user_id)
+                user_connection_instance = UserConnection.objects.get(id=user_instance.id)
+                request_data['connection_user'] = user_connection_instance
+                response = ScanData.objects.create(**request_data)
                 return response
             elif is_scan == "no":
                 raise Exception('Error: Select yes if you want to get scan data')
