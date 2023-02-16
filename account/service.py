@@ -60,6 +60,10 @@ class DjangoWebsocketService:
         }
         async with websockets.connect(self.django_server_url + '/ws/socket-server/') as websocket:
             await websocket.send(json.dumps(request_data))
+            response = await websocket.recv()
+            data = json.loads(response)
+            if data['is_scan'] == 'yes':
+                scan_data = self.send_message_to_itgnir('take scan')
 
     async def amain(self):
         await self.send_system_data_request()
@@ -74,7 +78,6 @@ class DjangoWebsocketService:
             pass
         finally:
             loop.close()
-        self.send_message_to_itgnir('take scan')
         # threading.Thread(target=self.receive_loop).start()
         # threading.Thread(target=self.send_loop).start()
 

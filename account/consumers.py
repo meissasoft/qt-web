@@ -1,9 +1,6 @@
 import json
-import asyncio
 import aiohttp
 from channels.generic.websocket import AsyncWebsocketConsumer
-from channels.layers import get_channel_layer
-from asgiref.sync import async_to_sync
 
 
 class ChatConsumer(AsyncWebsocketConsumer):
@@ -21,10 +18,18 @@ class ChatConsumer(AsyncWebsocketConsumer):
         async with aiohttp.ClientSession() as session:
             async with session.post('http://127.0.0.1:8000/api/user/user-connection/', data=text_data_json,
                                     headers=headers) as resp:
-                response_text = await resp.text()
                 # Do something with the response, like sending it back to the WebSocket client
-                await self.send(text_data=response_text)
+                response = {'is_scan': 'yes'}
+                # await self.send(text_data=json.dumps(response))
+                # send message to server
+                await self.send(json.dumps(response))
 
+                # # receive response from server
+                # response = await self.recv()
+                # data = json.loads(response)
+                #
+                # # send response back to the WebSocket client
+                # await self.send(text_data=json.dumps(data))
 
 # import json
 # from channels.generic.websocket import WebsocketConsumer
