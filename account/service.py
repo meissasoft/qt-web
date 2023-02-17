@@ -90,18 +90,20 @@ class DjangoWebsocketService:
 
     async def amain(self):
         response = await self.send_system_data_request()
-        # thread_1 = threading.Thread(target=self.take_scan_loop, args=(response,))
-        # thread_2 = threading.Thread(target=self.update_user_connection_status_loop)
-        # thread_1.start()
-        # thread_2.start()
-        scan_data = await self.take_scan_loop(response)
-        connection_fun = await self.update_user_connection_status_loop()
+        thread_1 = threading.Thread(target=self.take_scan_loop, args=(response,))
+        thread_2 = threading.Thread(target=self.update_user_connection_status_loop)
+        thread_1.start()
+        thread_2.start()
+        # scan_data = await self.take_scan_loop(response)
+        # connection_fun = await self.update_user_connection_status_loop()
         print("")
         # threading.Thread(target=self.take_scan_loop(response)).start()
         # threading.Thread(target=self.send_loop).start()
 
     def main(self):
-        self.login('software@gmail.com', '$@lm@n123')
+        self.login('softech@gmail.com', '$0ftw@re123')
+        # self.login('computer@gmail.com', 'C0mputer123')
+        # self.login('laptop@gmail.com', 'C0mputer123')
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
         try:

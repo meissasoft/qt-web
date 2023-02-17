@@ -145,51 +145,14 @@ class UserConnectionView(CreateAPIView):
         except Http404:
             return Response({"error": "UserConnection not found"}, status=status.HTTP_404_NOT_FOUND)
 
-        serializer = UserConnectionSerializer(user_conn, data=request.data, partial=True)
-        if serializer.is_valid():
-            if "is_connection_alive" in request.data:
-                if request.data.get("is_connection_alive") == "yes":
-                    serializer.validated_data["status_active"] = True
-                    serializer.validated_data["last_status"] = timezone.now()
-                else:
-                    serializer.validated_data["status_active"] = False
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        serializer = UserConnectionSerializer(user_conn, data=request.data, context={'request': request})
+        serializer.is_valid(raise_exception=True)
+        return Response({'msg': 'User Connection Updated Successfully'}, status=status.HTTP_200_OK)
 
     def get_object(self):
         user_id = self.request.user.id
-        user_conn = UserConnection.objects.get(id=user_id)
+        user_conn = UserConnection.objects.get(user_id=user_id)
         return user_conn
-
-
-# class UserConnectionView(CreateAPIView):
-#     # permission_classes = [IsAuthenticated]
-#     renderer_classes = [UserRenderer]
-#     serializer_class = UserConnectionSerializer
-#     allowed_methods = ('POST', 'PUT')
-#     parser_classes = [MultiPartParser, FormParser]
-#
-#     def post(self, request, format=None, **kwargs):
-#         serializer = UserConnectionSerializer(data=request.data, context={'request': request})
-#         serializer.is_valid(raise_exception=True)
-#         return Response({'msg': 'User Connection Established Successfully'}, status=status.HTTP_201_CREATED)
-#
-#     def put(self, request, *args, **kwargs):
-#         try:
-#             user_conn = self.get_object()
-#         except Http404:
-#             return Response({"error": "UserConnection not found"}, status=status.HTTP_404_NOT_FOUND)
-#
-#         serializer = UserConnectionSerializer(data=request.data, context={'request': request})
-#         serializer.is_valid(raise_exception=True)
-#         serializer.save()
-#         return Response({'msg': 'User Connection Updated Successfully'}, status=status.HTTP_200_OK)
-#
-#     def get_object(self):
-#         user_id = self.request.user.id
-#         user_conn = UserConnection.objects.get(id=user_id)
-#         return user_conn
 
 
 class ScanDataView(CreateAPIView):

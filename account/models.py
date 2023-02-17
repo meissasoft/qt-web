@@ -5,9 +5,9 @@ from django.contrib.auth.models import BaseUserManager, AbstractBaseUser
 # Custom User Manager
 
 class UserManager(BaseUserManager):
-    def create_user(self, email, name, password=None, password2=None):
+    def create_user(self, email, name, password=None, password2=None, user_type="operator"):
         """
-        Creates and saves a User with the given email, name and password.
+        Creates and saves a User with the given email, name, password and user_type.
         """
         if not email:
             raise ValueError('Users must have an email address')
@@ -15,21 +15,24 @@ class UserManager(BaseUserManager):
         user = self.model(
             email=self.normalize_email(email),
             name=name,
+            user_type=user_type,
         )
 
         user.set_password(password)
         user.save(using=self._db)
         return user
 
-    def create_superuser(self, email, name, password=None):
+    def create_superuser(self, email, name, password=None, user_type="owner"):
         """
-        Creates and saves a superuser with the given email, name and password.
+        Creates and saves a superuser with the given email, name, password and user_type.
         """
         user = self.create_user(
             email,
             password=password,
             name=name,
+            user_type=user_type,
         )
+        user.is_superuser = True
         user.is_admin = True
         user.save(using=self._db)
         return user

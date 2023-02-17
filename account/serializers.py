@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime
 
 from .client import Client
 from rest_framework import serializers
@@ -146,55 +146,43 @@ class UpdateRegisterUserSerializer(serializers.Serializer):
 
 
 class UserConnectionSerializer(serializers.ModelSerializer):
-    status_active = serializers.BooleanField(default=True)
-    last_status = serializers.DateTimeField(read_only=True)
-
     class Meta:
         model = UserConnection
         fields = ['machine_name', 'mac_address', 'status_active', 'last_status']
 
     def validate(self, attrs):
         try:
-            request_data = dict(attrs)
+            method = self.context['request'].method
+            request_data = dict(self.context['request'].data)
             # Get the user ID from the Bearer token
             user_id = self.context['request'].user.id
             user_instance = User.objects.get(id=user_id)
             request_data['user'] = user_instance
-            response = UserConnection.objects.create(**request_data)
-            return response
+            if method == 'POST':
+                # Check if UserConnection already exists
+                try:
+                    UserConnection.objects.get(user_id=user_instance,
+                                               machine_name=request_data['machine_name'],
+                                               mac_address=request_data['mac_address'])
+                    raise serializers.ValidationError('UserConnection already exists')
+                except UserConnection.DoesNotExist:
+                    # Create new UserConnection
+                    response = UserConnection.objects.create(**request_data)
+                    return response
+            elif method == 'PUT':
+                is_connection_alive = self.context['request'].data['is_connection_alive']
+                user_connection_obj = UserConnection.objects.get(user_id=user_id)
+                if is_connection_alive == 'yes':
+                    user_connection_obj.status_active = True
+                    user_connection_obj.last_status = datetime.now()
+                    user_connection_obj.save()
+                    return user_connection_obj
+                else:
+                    user_connection_obj.status_active = False
+                    user_connection_obj.save()
+                    return user_connection_obj
         except Exception as e:
             raise serializers.ValidationError(e)
-
-
-# class UserConnectionSerializer(serializers.ModelSerializer):
-#     status_active = serializers.BooleanField(default=True)
-#     last_status = serializers.DateTimeField(read_only=True)
-#
-#     class Meta:
-#         model = UserConnection
-#         fields = ['machine_name', 'mac_address', 'status_active', 'last_status']
-#
-#     def validate(self, attrs):
-#         try:
-#             request_data = dict(attrs)
-#             user_id = self.context['request'].user.id
-#             user_instance = User.objects.get(id=user_id)
-#             request_data['user'] = user_instance
-#             response = UserConnection.objects.create(**request_data)
-#             return response
-#         except Exception as e:
-#             raise serializers.ValidationError(e)
-#
-#     def update(self, instance, validated_data):
-#         is_connection_alive = validated_data.get('is_connection_alive')
-#         if is_connection_alive == 'yes':
-#             validated_data['status_active'] = True
-#         else:
-#             validated_data['status_active'] = False
-#         instance = super().update(instance, validated_data)
-#         instance.last_status = datetime.datetime.now()
-#         instance.save()
-#         return instance
 
 
 class ScanDataSerializer(serializers.ModelSerializer):
@@ -208,8 +196,7 @@ class ScanDataSerializer(serializers.ModelSerializer):
             is_scan = self.context['request'].data['is_scan']
             if is_scan == "yes":
                 user_id = self.context['request'].user.id
-                user_instance = User.objects.get(id=user_id)
-                user_connection_instance = UserConnection.objects.get(id=user_instance.id)
+                user_connection_instance = UserConnection.objects.get(user_id=user_id)
                 request_data['connection_user'] = user_connection_instance
                 response = ScanData.objects.create(**request_data)
                 return response
