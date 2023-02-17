@@ -87,13 +87,28 @@ class DjangoWebsocketService:
                 await websocket.send(json.dumps(request_data))
                 await asyncio.sleep(60)
 
+    def thread1(self, data):
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        tasks = [loop.create_task(self.take_scan_loop(data))]
+        loop.run_until_complete(asyncio.gather(*tasks))
+
+    def thread2(self):
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        tasks = [loop.create_task(self.update_user_connection_status_loop())]
+        loop.run_until_complete(asyncio.gather(*tasks))
 
     async def amain(self):
         response = await self.send_system_data_request()
-        thread_1 = threading.Thread(target=self.take_scan_loop, args=(response,))
-        thread_2 = threading.Thread(target=self.update_user_connection_status_loop)
-        thread_1.start()
-        thread_2.start()
+        thread1 = threading.Thread(target=self.thread1, args=(response,))
+        thread1.start()
+        thread2 = threading.Thread(target=self.thread2)
+        thread2.start()
+        # thread_1 = threading.Thread(target=self.take_scan_loop, args=(response,))
+        # thread_2 = threading.Thread(target=self.update_user_connection_status_loop)
+        # thread_1.start()
+        # thread_2.start()
         # scan_data = await self.take_scan_loop(response)
         # connection_fun = await self.update_user_connection_status_loop()
         print("")
