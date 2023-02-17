@@ -5,6 +5,7 @@ from channels.generic.websocket import AsyncWebsocketConsumer
 
 
 class ChatConsumer(AsyncWebsocketConsumer):
+
     async def connect(self):
         await self.accept()
 
@@ -21,7 +22,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 async with session.post('http://127.0.0.1:8000/api/user/user-connection/', data=text_data_json,
                                         headers=headers) as resp:
                     # Do something with the response, like sending it back to the WebSocket client
-                    response = {'is_scan': 'yes'}
+                    response = {'is_scan': 'no'}
                     # await self.send(text_data=json.dumps(response))
                     # send message to server
                     await self.send(json.dumps(response))
@@ -51,3 +52,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     # await self.send(text_data=json.dumps(response))
                     # send message to server
                     await self.send(json.dumps(response))
+        elif 'is_scan' in text_data_json:
+            print("")
+
+

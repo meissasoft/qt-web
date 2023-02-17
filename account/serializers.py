@@ -186,9 +186,12 @@ class UserConnectionSerializer(serializers.ModelSerializer):
 
 
 class ScanDataSerializer(serializers.ModelSerializer):
+    is_scan = serializers.ChoiceField(choices=[('yes', 'Yes'), ('no', 'No')],
+                                      default="yes")
+
     class Meta:
         model = ScanData
-        fields = ['wavelength', 'energy']
+        fields = ['is_scan']
 
     def validate(self, attrs):
         request_data = dict(attrs)

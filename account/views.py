@@ -1,3 +1,7 @@
+import asyncio
+import json
+
+import websockets
 from datetime import datetime
 
 from django.http import Http404
@@ -163,6 +167,25 @@ class ScanDataView(CreateAPIView):
     parser_classes = [MultiPartParser, FormParser]
 
     def post(self, request, format=None, **kwargs):
+        is_scan = dict(request.data)['is_scan'][0]
+        if is_scan == 'yes':
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+            try:
+                asyncio.run(self.send_is_scan_request(data={'is_scan': 'yes'}))
+            except KeyboardInterrupt:
+                pass
+            finally:
+                loop.close()
+        else:
+            raise Exception("Select is_scan yes for scanning the data")
         serializer = ScanDataSerializer(data=request.data, context={'request': request})
         serializer.is_valid(raise_exception=True)
         return Response({'msg': 'Data Scanned Successfully'}, status=status.HTTP_201_CREATED)
+
+    async def send_is_scan_request(self, data):
+        async with websockets.connect('ws://127.0.0.1:8000/ws/socket-server/scan/') as websocket:
+            await websocket.send(json.dumps(data))
+            response = await websocket.recv()
+            data = json.loads(response)
+            return data
