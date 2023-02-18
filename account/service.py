@@ -48,7 +48,7 @@ class DjangoWebsocketService:
             message_data = json.loads(message)
             # Handle received message data here as necessary
 
-    async def send_system_data_request(self):
+    async def send_system_data_request(self, websocket):
         mac_address = ':'.join(['{:02x}'.format((uuid.getnode() >> ele) & 0xff)
                                 for ele in range(0, 8 * 6, 8)][::-1])
 
@@ -58,34 +58,31 @@ class DjangoWebsocketService:
             'mac_address': mac_address,
             'machine_name': machine_name
         }
-        async with websockets.connect(self.django_server_url + '/ws/socket-server/') as websocket:
-            await websocket.send(json.dumps(request_data))
+        await websocket.send(json.dumps(request_data))
+        response = await websocket.recv()
+        data = json.loads(response)
+        return data
+
+        # threading.Thread(target=self.take_scan_loop(data, websocket)).start()
+
+    async def take_scan_loop(self, data, websocket):
+        while True:
+            if data['is_scan'] == 'yes':
+                scan_data = self.send_message_to_itgnir('take scan')
+                scan_data = eval(scan_data)
+                scan_data['token'] = self.token
+                scan_data['is_scan'] = 'yes'
+                await websocket.send(json.dumps(scan_data))
             response = await websocket.recv()
             data = json.loads(response)
             return data
 
-            # threading.Thread(target=self.take_scan_loop(data, websocket)).start()
-
-    async def take_scan_loop(self, data):
-        async with websockets.connect(self.django_server_url + '/ws/socket-server/') as websocket:
-            while True:
-                if data['is_scan'] == 'yes':
-                    scan_data = self.send_message_to_itgnir('take scan')
-                    scan_data = eval(scan_data)
-                    scan_data['token'] = self.token
-                    scan_data['is_scan'] = 'yes'
-                    await websocket.send(json.dumps(scan_data))
-                response = await websocket.recv()
-                data = json.loads(response)
-                return data
-
-    async def update_user_connection_status_loop(self):
-        async with websockets.connect(self.django_server_url + '/ws/socket-server/') as websocket:
-            while True:
-                # send a "yes" message every minute to indicate that the connection is still alive
-                request_data = {"is_connection_alive": "yes", "token": self.token}
-                await websocket.send(json.dumps(request_data))
-                await asyncio.sleep(60)
+    async def update_user_connection_status_loop(self, websocket):
+        while True:
+            # send a "yes" message every minute to indicate that the connection is still alive
+            request_data = {"is_connection_alive": "yes", "token": self.token}
+            await websocket.send(json.dumps(request_data))
+            await asyncio.sleep(60)
 
     def thread1(self, data):
         loop = asyncio.new_event_loop()
@@ -100,10 +97,11 @@ class DjangoWebsocketService:
         loop.run_until_complete(asyncio.gather(*tasks))
 
     async def amain(self):
-        response = await self.send_system_data_request()
-        thread1 = threading.Thread(target=self.thread1, args=(response,))
+        websocket = websockets.connect(self.django_server_url + '/ws/socket-server/')
+        response = await self.send_system_data_request(websocket)
+        thread1 = threading.Thread(target=self.thread1, args=(response, websocket))
         thread1.start()
-        thread2 = threading.Thread(target=self.thread2)
+        thread2 = threading.Thread(target=self.thread2, args=(websocket,))
         thread2.start()
         # thread_1 = threading.Thread(target=self.take_scan_loop, args=(response,))
         # thread_2 = threading.Thread(target=self.update_user_connection_status_loop)
