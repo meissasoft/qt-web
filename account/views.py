@@ -21,7 +21,7 @@ from rest_framework.views import APIView
 from account.models import ScanData
 from account.serializers import SendPasswordResetEmailSerializer, UserChangePasswordSerializer, UserLoginSerializer, \
     UserPasswordResetSerializer, UserProfileSerializer, UserRegistrationSerializer, UpdateRegisterUserSerializer, \
-    ScanDataSerializer, UserConnectionSerializer
+    ScanDataSerializer, UserConnectionSerializer, IsScanSerializer
 from django.contrib.auth import authenticate
 from account.renderers import UserRenderer
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -91,7 +91,7 @@ class UserChangePasswordView(CreateAPIView):
     def post(self, request, format=None, **kwargs):
         serializer = UserChangePasswordSerializer(data=request.data, context={'user': request.user})
         serializer.is_valid(raise_exception=True)
-        return Response({'msg': 'Password Changed Successfully'}, status=status.HTTP_200_OK)
+        return Response({'msg': 'Password Changed Successfully'}, status=status.HTTP_201_CREATED)
 
 
 class SendPasswordResetEmailView(CreateAPIView):
@@ -103,7 +103,7 @@ class SendPasswordResetEmailView(CreateAPIView):
     def post(self, request, format=None, **kwargs):
         serializer = SendPasswordResetEmailSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        return Response({'msg': 'Password Reset link send. Please check your Email'}, status=status.HTTP_200_OK)
+        return Response({'msg': 'Password Reset link send. Please check your Email'}, status=status.HTTP_201_CREATED)
 
 
 class UserPasswordResetView(CreateAPIView):
@@ -115,7 +115,7 @@ class UserPasswordResetView(CreateAPIView):
     def post(self, request, uid, token, format=None):
         serializer = UserPasswordResetSerializer(data=request.data, context={'uid': uid, 'token': token})
         serializer.is_valid(raise_exception=True)
-        return Response({'msg': 'Password Reset Successfully'}, status=status.HTTP_200_OK)
+        return Response({'msg': 'Password Reset Successfully'}, status=status.HTTP_201_CREATED)
 
 
 class UpdateRegisterUserView(CreateAPIView):
@@ -163,14 +163,29 @@ class UserConnectionView(CreateAPIView):
 
 
 async def send_and_receive(request_data):
-    user_id = request_data['user_id']
-    # del request_data['user_id']
-    from .consumers import connections
-    await connections[user_id].receive(json.dumps(request_data))
+    try:
+        user_id = request_data['user_id']
+        from .consumers import connections
+        await connections[user_id].receive(json.dumps(request_data))
+    except Exception as e:
+        raise Exception(f"Error: {e}")
 
-    time.sleep(10)
 
-    return {"success": "No response received from client."}
+class IsScanView(CreateAPIView):
+    permission_classes = [IsAuthenticated]
+    renderer_classes = [UserRenderer]
+    serializer_class = IsScanSerializer
+    allowed_methods = ('POST',)
+    parser_classes = [MultiPartParser, FormParser]
+
+    def post(self, request, format=None, **kwargs):
+        is_scan = dict(request.data)['is_scan'][0]
+        if is_scan == 'yes':
+            user_id = request.user.id
+            async_to_sync(send_and_receive)(request_data={'is_scan_data': 'yes', 'user_id': user_id})
+            return JsonResponse({'status': 'ok'})
+        else:
+            raise Exception("Error: Select is_scan yes for scanning the data")
 
 
 class ScanDataView(CreateAPIView):
@@ -181,45 +196,6 @@ class ScanDataView(CreateAPIView):
     parser_classes = [MultiPartParser, FormParser]
 
     def post(self, request, format=None, **kwargs):
-        is_scan = dict(request.data)['is_scan'][0]
-        if is_scan == 'yes':
-            user_id = request.user.id
-            response_data = async_to_sync(send_and_receive)(request_data={'is_scan_data': 'yes', 'user_id': user_id})
-            return JsonResponse({'status': 'ok'})
-        else:
-            raise Exception("Select is_scan yes for scanning the data")
-
-    # async def send_is_scan_data(self, data):
-    #     consumer = ChatConsumer()
-    #     await consumer.receive(data)
-
-# class ScanDataView(CreateAPIView):
-#     # permission_classes = [IsAuthenticated]
-#     renderer_classes = [UserRenderer]
-#     serializer_class = ScanDataSerializer
-#     allowed_methods = ('POST',)
-#     parser_classes = [MultiPartParser, FormParser]
-#
-#     def post(self, request, format=None, **kwargs):
-#         is_scan = dict(request.data)['is_scan'][0]
-#         if is_scan == 'yes':
-#             loop = asyncio.new_event_loop()
-#             asyncio.set_event_loop(loop)
-#             try:
-#                 asyncio.run(self.send_is_scan_request(data={'is_scan': 'yes'}))
-#             except KeyboardInterrupt:
-#                 pass
-#             finally:
-#                 loop.close()
-#         else:
-#             raise Exception("Select is_scan yes for scanning the data")
-#         serializer = ScanDataSerializer(data=request.data, context={'request': request})
-#         serializer.is_valid(raise_exception=True)
-#         return Response({'msg': 'Data Scanned Successfully'}, status=status.HTTP_201_CREATED)
-#
-#     async def send_is_scan_request(self, data):
-#         async with websockets.connect('ws://127.0.0.1:8000/ws/socket-server/scan/') as websocket:
-#             await websocket.send(json.dumps(data))
-#             response = await websocket.recv()
-#             data = json.loads(response)
-#             return data
+        serializer = ScanDataSerializer(data=request.data, context={'request': request})
+        serializer.is_valid(raise_exception=True)
+        return Response({'msg': 'Data Scanned Successfully'}, status=status.HTTP_201_CREATED)

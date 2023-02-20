@@ -1,5 +1,3 @@
-import jwt
-import asyncio
 import json
 import aiohttp
 from rest_framework_simplejwt.tokens import AccessToken
@@ -12,9 +10,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
     async def connect(self):
         await self.accept()
-
-    # async def send(self, text_data=None, bytes_data=None, close=False):
-    #     await self.send(json.dumps(text_data))
 
     async def disconnect(self, close_code):
         pass
@@ -42,12 +37,11 @@ class ChatConsumer(AsyncWebsocketConsumer):
                                         headers=headers) as resp:
                     # Do something with the response, like sending it back to the WebSocket client
                     response = {'message': 'user connection created successfully'}
-                    # await self.send(text_data=json.dumps(response))
-                    # send message to server
-                    # await connections[user_id].send(json.dumps(response))
+                    # send message to client
                     await connections[user_id].send(json.dumps(response))
 
         elif 'wavelength' in text_data_json:
+            print("wavelength")
             bearer_token = text_data_json.get('token')
             user_id = await self.get_user_id_from_token(bearer_token)
             del text_data_json['token']
@@ -57,7 +51,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
                                         headers=headers) as resp:
                     # Do something with the response, like sending it back to the WebSocket client
                     response = {'message': 'data scanned successfully'}
-                    # await self.send(text_data=json.dumps(response))
                     # send message to server
                     await connections[user_id].send(json.dumps(response))
 
@@ -71,7 +64,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
                                        headers=headers) as resp:
                     # Do something with the response, like sending it back to the WebSocket client
                     response = {'message': 'user connection updated successfully'}
-                    # await self.send(text_data=json.dumps(response))
                     # send message to server
                     await connections[user_id].send(json.dumps(response))
         elif 'is_scan_data' in text_data_json:
@@ -79,39 +71,4 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 user_id = text_data_json['user_id']
                 print(user_id)
                 print(connections[user_id])
-                await connections[user_id].send(json.dumps(text_data_json))
-
-# import asyncio
-# import json
-# from channels.generic.websocket import AsyncWebsocketConsumer
-#
-#
-# class ChatConsumer(AsyncWebsocketConsumer):
-#     async def connect(self):
-#         await self.accept()
-#
-#     async def disconnect(self, close_code):
-#         pass
-#
-#     async def receive(self, text_data):
-#         data = json.loads(text_data)
-#         message_type = data.get('type')
-#
-#         if message_type == 'message':
-#             message_text = data.get('text')
-#             # Do something with the message text, e.g. send a response
-#             await self.send(json.dumps({'type': 'response', 'text': f'Received message: {message_text}'}))
-
-
-# async def main():
-#     # Example usage
-#     client = ChatConsumer.as_asgi()
-#     await client.connect()
-#     await client.send(json.dumps({'type': 'message', 'text': 'Hello, server!'}))
-#
-#     while True:
-#         await asyncio.sleep(1)
-#
-#
-# if __name__ == '__main__':
-#     asyncio.run(main())
+                await self.send(json.dumps(text_data_json))

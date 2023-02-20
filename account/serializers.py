@@ -185,25 +185,26 @@ class UserConnectionSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(e)
 
 
-class ScanDataSerializer(serializers.ModelSerializer):
+class IsScanSerializer(serializers.ModelSerializer):
     is_scan = serializers.ChoiceField(choices=[('yes', 'Yes'), ('no', 'No')],
                                       default="yes")
 
     class Meta:
-        model = ScanData
         fields = ['is_scan']
+
+
+class ScanDataSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ScanData
+        fields = ['wavelength', 'energy']
 
     def validate(self, attrs):
         request_data = dict(attrs)
         try:
-            is_scan = self.context['request'].data['is_scan']
-            if is_scan == "yes":
-                user_id = self.context['request'].user.id
-                user_connection_instance = UserConnection.objects.get(user_id=user_id)
-                request_data['connection_user'] = user_connection_instance
-                response = ScanData.objects.create(**request_data)
-                return response
-            elif is_scan == "no":
-                raise Exception('Error: Select yes if you want to get scan data')
+            user_id = self.context['request'].user.id
+            user_connection_instance = UserConnection.objects.get(user_id=user_id)
+            request_data['connection_user'] = user_connection_instance
+            response = ScanData.objects.create(**request_data)
+            return response
         except Exception as e:
             raise serializers.ValidationError(e)
