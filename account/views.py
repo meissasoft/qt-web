@@ -11,7 +11,6 @@ from django.http import Http404, JsonResponse
 from django.utils import timezone
 from rest_framework.generics import CreateAPIView
 from rest_framework import viewsets
-from .consumers import ChatConsumer
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.response import Response
 from rest_framework import status
@@ -190,9 +189,9 @@ class ScanDataView(CreateAPIView):
         else:
             raise Exception("Select is_scan yes for scanning the data")
 
-    async def send_is_scan_data(self, data):
-        consumer = ChatConsumer()
-        await consumer.receive(data)
+    # async def send_is_scan_data(self, data):
+    #     consumer = ChatConsumer()
+    #     await consumer.receive(data)
 
 # class ScanDataView(CreateAPIView):
 #     # permission_classes = [IsAuthenticated]

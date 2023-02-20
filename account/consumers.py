@@ -29,11 +29,11 @@ class ChatConsumer(AsyncWebsocketConsumer):
             raise Exception('Error: {e}')
 
     async def receive(self, text_data):
+        global connections
         text_data_json = json.loads(text_data)
         if 'machine_name' in text_data_json:
             bearer_token = text_data_json.get('token')
             user_id = await self.get_user_id_from_token(bearer_token)
-            global connections
             connections[user_id] = self
             del text_data_json['token']
             headers = {'Authorization': f'Bearer {bearer_token}'} if bearer_token else {}
@@ -41,46 +41,45 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 async with session.post('http://127.0.0.1:8000/api/user/user-connection/', data=text_data_json,
                                         headers=headers) as resp:
                     # Do something with the response, like sending it back to the WebSocket client
-                    response = {'is_scan': 'no'}
+                    response = {'message': 'user connection created successfully'}
                     # await self.send(text_data=json.dumps(response))
                     # send message to server
-                    await self.send(json.dumps(response))
-
-        elif text_data_json['is_scan_data'] == 'yes':
-            user_id = text_data_json['user_id']
-            # global connections
-            # await connections[user_id].receive(json.dumps(text_data))
+                    # await connections[user_id].send(json.dumps(response))
+                    await connections[user_id].send(json.dumps(response))
 
         elif 'wavelength' in text_data_json:
             bearer_token = text_data_json.get('token')
+            user_id = await self.get_user_id_from_token(bearer_token)
             del text_data_json['token']
             headers = {'Authorization': f'Bearer {bearer_token}'} if bearer_token else {}
             async with aiohttp.ClientSession() as session:
                 async with session.post('http://127.0.0.1:8000/api/user/scan-data/', data=text_data_json,
                                         headers=headers) as resp:
                     # Do something with the response, like sending it back to the WebSocket client
-                    response = {'is_scan': 'yes'}
+                    response = {'message': 'data scanned successfully'}
                     # await self.send(text_data=json.dumps(response))
                     # send message to server
-                    await self.send(json.dumps(response))
+                    await connections[user_id].send(json.dumps(response))
 
         elif 'is_connection_alive' in text_data_json:
             bearer_token = text_data_json.get('token')
+            user_id = await self.get_user_id_from_token(bearer_token)
             del text_data_json['token']
             headers = {'Authorization': f'Bearer {bearer_token}'} if bearer_token else {}
             async with aiohttp.ClientSession() as session:
                 async with session.put('http://127.0.0.1:8000/api/user/user-connection/', data=text_data_json,
                                        headers=headers) as resp:
                     # Do something with the response, like sending it back to the WebSocket client
-                    response = {'is_scan': 'yes'}
+                    response = {'message': 'user connection updated successfully'}
                     # await self.send(text_data=json.dumps(response))
                     # send message to server
-                    await self.send(json.dumps(response))
-        elif 'is_scan' in text_data_json:
-            print("")
-
-
-
+                    await connections[user_id].send(json.dumps(response))
+        elif 'is_scan_data' in text_data_json:
+            if text_data_json['is_scan_data'] == 'yes':
+                user_id = text_data_json['user_id']
+                print(user_id)
+                print(connections[user_id])
+                await connections[user_id].send(json.dumps(text_data_json))
 
 # import asyncio
 # import json
@@ -116,4 +115,3 @@ class ChatConsumer(AsyncWebsocketConsumer):
 #
 # if __name__ == '__main__':
 #     asyncio.run(main())
-
