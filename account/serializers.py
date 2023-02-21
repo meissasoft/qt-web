@@ -185,12 +185,9 @@ class UserConnectionSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(e)
 
 
-class IsScanSerializer(serializers.ModelSerializer):
+class IsScanSerializer(serializers.Serializer):
     is_scan = serializers.ChoiceField(choices=[('yes', 'Yes'), ('no', 'No')],
                                       default="yes")
-
-    class Meta:
-        fields = ['is_scan']
 
 
 class ScanDataSerializer(serializers.ModelSerializer):

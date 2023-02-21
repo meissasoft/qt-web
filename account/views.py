@@ -168,7 +168,7 @@ async def send_and_receive(request_data):
         from .consumers import connections
         await connections[user_id].receive(json.dumps(request_data))
     except Exception as e:
-        raise Exception(f"Error: {e}")
+        return Response({f'Error: {e}'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class IsScanView(CreateAPIView):
@@ -183,9 +183,9 @@ class IsScanView(CreateAPIView):
         if is_scan == 'yes':
             user_id = request.user.id
             async_to_sync(send_and_receive)(request_data={'is_scan_data': 'yes', 'user_id': user_id})
-            return JsonResponse({'status': 'ok'})
+            return Response({'msg': 'ok'}, status=status.HTTP_201_CREATED)
         else:
-            raise Exception("Error: Select is_scan yes for scanning the data")
+            return Response({'Error': 'Select is_scan yes for scanning the data'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class ScanDataView(CreateAPIView):
