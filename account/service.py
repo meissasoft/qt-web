@@ -52,7 +52,11 @@ class DjangoWebsocketService:
             message_data = json.loads(message)
             # Handle received message data here as necessary
             if 'is_scan_data' in message_data.keys():
-                await self.take_scan_loop(message)
+                response = await self.take_scan_loop(message_data)
+                await self.send_data(response)
+                # thread1 = threading.Thread(target=self.thread1, args=(message,))
+                # thread1.start()
+                # thread1.join()
             return message_data
 
     def send_message_to_itgnir(self, message):
@@ -76,33 +80,54 @@ class DjangoWebsocketService:
         print(response)
 
     async def take_scan_loop(self, data):
-        # request_data = {'is_scan': 'yes'}
         print("receive")
         if data['is_scan_data'] == 'yes':
             scan_data = self.send_message_to_itgnir('take scan')
             scan_data = eval(scan_data)
             scan_data['token'] = self.token
-            await self.send_data(scan_data)
+            return scan_data
 
     async def update_user_connection_status_loop(self):
-        # send a "yes" message every minute to indicate that the connection is still alive
-        request_data = {"is_connection_alive": "yes", "token": self.token}
-        await self.send_data(request_data)
-        await asyncio.sleep(60)
-
-    def thread1(self):
         while True:
-            self.take_scan_loop()
+            # send a "yes" message every minute to indicate that the connection is still alive
+            request_data = {"is_connection_alive": "yes", "token": self.token}
+            await self.send_data(request_data)
+            response = await self.receive_data()
+            response = await self.receive_data()
+            await asyncio.sleep(60)
+
+    # def thread1(self):
+    #     while True:
+    #         self.take_scan_loop()
+    #
+    # def thread2(self):
+    #     while True:
+    #         self.update_user_connection_status_loop()
+
+    def thread1(self, data):
+        # self.take_scan_loop(data)
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        tasks = [loop.create_task(self.take_scan_loop(data))]
+        loop.run_until_complete(asyncio.gather(*tasks))
 
     def thread2(self):
         while True:
-            self.update_user_connection_status_loop()
+            # self.update_user_connection_status_loop()
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+            tasks = [loop.create_task(self.update_user_connection_status_loop())]
+            loop.run_until_complete(asyncio.gather(*tasks))
 
     async def amain(self):
         await self.connect_to_server()
         await self.send_system_data_request()
-        # await self.update_user_connection_status_loop()
         await self.update_user_connection_status_loop()
+        # thread2 = threading.Thread(target=self.thread2)
+        # thread2.start()
+        # thread2.join()
+        # await self.update_user_connection_status_loop()
+        # await self.update_user_connection_status_loop()
         # thread1 = threading.Thread(target=self.thread1)
         # thread1.start()
         # thread2 = threading.Thread(target=self.thread2)
