@@ -15,6 +15,7 @@ class DjangoWebsocketService:
         self.token = None
         self.host = '127.0.0.1'
         self.port = 4444
+        self.client_socket.connect((self.host, self.port))
         self.ws = 'ws://127.0.0.1:8000/ws/socket-server/'
         self.websocket = None
 
@@ -60,7 +61,6 @@ class DjangoWebsocketService:
             return message_data
 
     def send_message_to_itgnir(self, message):
-        self.client_socket.connect((self.host, self.port))
         self.client_socket.sendall(message.encode())
         response = self.client_socket.recv(1024).decode()
         return response

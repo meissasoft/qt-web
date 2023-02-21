@@ -13,8 +13,8 @@ class Server:
         server_socket.listen()
 
         print(f'Server listening on {self.host}:{self.port}')
+        conn, addr = server_socket.accept()
         while True:
-            conn, addr = server_socket.accept()
             message = conn.recv(1024).decode()
             wavelength = random.random()
             energy = random.random()
@@ -22,7 +22,7 @@ class Server:
             if message == 'take scan':
                 conn.sendall(f"{scan_data}".encode())
                 # conn.sendall("ok".encode())
-            conn.close()
+
 
 
 if __name__ == '__main__':
