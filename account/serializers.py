@@ -171,16 +171,17 @@ class UserConnectionSerializer(serializers.ModelSerializer):
                     return response
             elif method == 'PUT':
                 is_connection_alive = self.context['request'].data['is_connection_alive']
-                user_connection_obj = UserConnection.objects.get(user_id=user_id)
+                machine_name = self.context['request'].data['machine_name']
+                user_connection_obj = UserConnection.objects.get(machine_name=machine_name)
                 if is_connection_alive == 'yes':
                     user_connection_obj.status_active = True
                     user_connection_obj.last_status = datetime.now()
                     user_connection_obj.save()
-                    return user_connection_obj
+                    return {'message: connection updated successfully'}
                 else:
                     user_connection_obj.status_active = False
                     user_connection_obj.save()
-                    return user_connection_obj
+                    return {'error: connection could not update'}
         except Exception as e:
             raise serializers.ValidationError(e)
 
@@ -198,9 +199,11 @@ class ScanDataSerializer(serializers.ModelSerializer):
     def validate(self, attrs):
         request_data = dict(attrs)
         try:
-            user_id = self.context['request'].user.id
-            user_connection_instance = UserConnection.objects.get(user_id=user_id)
-            request_data['connection_user'] = user_connection_instance
+            # user_id = self.context['request'].user.id
+            machine_name = self.context['request'].data['machine_name']
+            user_connection_obj = UserConnection.objects.get(machine_name=machine_name)
+            # user_connection_instance = UserConnection.objects.get(user_id=user_id)
+            request_data['connection_user'] = user_connection_obj
             response = ScanData.objects.create(**request_data)
             return response
         except Exception as e:

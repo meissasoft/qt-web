@@ -135,7 +135,7 @@ def lobby(request):
 
 
 class UserConnectionView(CreateAPIView):
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
     renderer_classes = [UserRenderer]
     serializer_class = UserConnectionSerializer
     allowed_methods = ('POST', 'PUT')
@@ -148,7 +148,8 @@ class UserConnectionView(CreateAPIView):
 
     def put(self, request, *args, **kwargs):
         try:
-            user_conn = self.get_object()
+            machine_name = request.data['machine_name']
+            user_conn = self.get_object(machine_name)
         except Http404:
             return Response({"error": "UserConnection not found"}, status=status.HTTP_404_NOT_FOUND)
 
@@ -156,9 +157,8 @@ class UserConnectionView(CreateAPIView):
         serializer.is_valid(raise_exception=True)
         return Response({'msg': 'User Connection Updated Successfully'}, status=status.HTTP_200_OK)
 
-    def get_object(self):
-        user_id = self.request.user.id
-        user_conn = UserConnection.objects.get(user_id=user_id)
+    def get_object(self, machine_name):
+        user_conn = UserConnection.objects.get(machine_name=machine_name)
         return user_conn
 
 

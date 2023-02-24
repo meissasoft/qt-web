@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-_zk=9yl=ul!po@_z-)wq&x4=&!(ons2(pogyu52+f7f37v3j$y
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['202.59.90.27', '127.0.0.1']
+ALLOWED_HOSTS = ['202.59.90.27', '127.0.0.1', 'localhost', 'ac20-39-62-223-184.in.ngrok.io']
 
 # Application definition
 
@@ -44,6 +44,8 @@ INSTALLED_APPS = [
     'channels',
     'drf_yasg',
 ]
+
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 ASGI_APPLICATION = 'qt-web.asgi.application'
 
@@ -179,7 +181,6 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
 ]
-
 
 # Add this line
 DEFAULT_CHARSET = 'utf-8'
