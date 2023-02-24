@@ -1,22 +1,21 @@
-import asyncio
-import json
-import threading
 import time
+import json
 import uuid
 import socket
+import asyncio
 import requests
+import threading
 from websockets import connect
 
 
 class DjangoWebsocketService:
-    def __init__(self, django_server_url):
-        self.django_server_url = django_server_url
+    def __init__(self):
         self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.token = None
         self.host = '127.0.0.1'
         self.port = 4444
         self.client_socket.connect((self.host, self.port))
-        self.ws = 'ws://127.0.0.1:8000/ws/socket-server/'
+        self.ws = 'wss://ac20-39-62-223-184.in.ngrok.io/ws/socket-server/'
         self.websocket = None
 
     def login(self, username, password):
@@ -33,7 +32,7 @@ class DjangoWebsocketService:
         headers = {}
         if self.token:
             headers['Authorization'] = f'Token {self.token}'
-        response = requests.request("POST", 'http://127.0.0.1:8000/api/user/login/',
+        response = requests.request("POST", 'https://ac20-39-62-223-184.in.ngrok.io/api/user/login/',
                                     headers=headers,
                                     data=payload)
         return response.json()
@@ -156,5 +155,5 @@ class DjangoWebsocketService:
 
 
 if __name__ == "__main__":
-    service = DjangoWebsocketService('ws://127.0.0.1:8000')
+    service = DjangoWebsocketService()
     service.main()
