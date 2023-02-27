@@ -1,5 +1,8 @@
+from datetime import datetime
+
+from .client import Client
 from rest_framework import serializers
-from account.models import User
+from account.models import User, ScanData, UserConnection
 from django.utils.encoding import smart_str, force_bytes, DjangoUnicodeDecodeError
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
@@ -140,3 +143,68 @@ class UpdateRegisterUserSerializer(serializers.Serializer):
             return attrs
         except Exception as e:
             raise serializers.ValidationError('Email id is not a valid email')
+
+
+class UserConnectionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserConnection
+        fields = ['machine_name', 'mac_address', 'status_active', 'last_status']
+
+    def validate(self, attrs):
+        try:
+            method = self.context['request'].method
+            request_data = dict(self.context['request'].data)
+            # Get the user ID from the Bearer token
+            user_id = self.context['request'].user.id
+            user_instance = User.objects.get(id=user_id)
+            request_data['user'] = user_instance
+            if method == 'POST':
+                # Check if UserConnection already exists
+                try:
+                    UserConnection.objects.get(user_id=user_instance,
+                                               machine_name=request_data['machine_name'],
+                                               mac_address=request_data['mac_address'])
+                    raise serializers.ValidationError('UserConnection already exists')
+                except UserConnection.DoesNotExist:
+                    # Create new UserConnection
+                    response = UserConnection.objects.create(**request_data)
+                    return response
+            elif method == 'PUT':
+                is_connection_alive = self.context['request'].data['is_connection_alive']
+                machine_name = self.context['request'].data['machine_name']
+                user_connection_obj = UserConnection.objects.get(machine_name=machine_name)
+                if is_connection_alive == 'yes':
+                    user_connection_obj.status_active = True
+                    user_connection_obj.last_status = datetime.now()
+                    user_connection_obj.save()
+                    return {'message: connection updated successfully'}
+                else:
+                    user_connection_obj.status_active = False
+                    user_connection_obj.save()
+                    return {'error: connection could not update'}
+        except Exception as e:
+            raise serializers.ValidationError(e)
+
+
+class IsScanSerializer(serializers.Serializer):
+    is_scan = serializers.ChoiceField(choices=[('yes', 'Yes'), ('no', 'No')],
+                                      default="yes")
+
+
+class ScanDataSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ScanData
+        fields = ['wavelength', 'energy']
+
+    def validate(self, attrs):
+        request_data = dict(attrs)
+        try:
+            # user_id = self.context['request'].user.id
+            machine_name = self.context['request'].data['machine_name']
+            user_connection_obj = UserConnection.objects.get(machine_name=machine_name)
+            # user_connection_instance = UserConnection.objects.get(user_id=user_id)
+            request_data['connection_user'] = user_connection_obj
+            response = ScanData.objects.create(**request_data)
+            return response
+        except Exception as e:
+            raise serializers.ValidationError(e)
