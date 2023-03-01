@@ -210,12 +210,6 @@ class ScanDataSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(e)
 
 
-class SysInfoSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = UserConnection
-        fields = ['machine_name', 'mac_address']
-
-
 class ItgnirSerializer(serializers.ModelSerializer):
     class Meta:
         model = ScanData

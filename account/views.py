@@ -6,6 +6,7 @@ import websockets
 from datetime import datetime
 
 from asgiref.sync import async_to_sync
+from datetime import datetime, timedelta
 from channels.layers import get_channel_layer
 from django.http import Http404, JsonResponse
 from django.utils import timezone
@@ -21,7 +22,7 @@ from rest_framework.views import APIView
 from account.models import ScanData
 from account.serializers import SendPasswordResetEmailSerializer, UserChangePasswordSerializer, UserLoginSerializer, \
     UserPasswordResetSerializer, UserProfileSerializer, UserRegistrationSerializer, UpdateRegisterUserSerializer, \
-    ScanDataSerializer, UserConnectionSerializer, IsScanSerializer, SysInfoSerializer, ItgnirSerializer
+    ScanDataSerializer, UserConnectionSerializer, IsScanSerializer, ItgnirSerializer
 from django.contrib.auth import authenticate
 from account.renderers import UserRenderer
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -211,13 +212,23 @@ class ScanDataView(CreateAPIView):
 class SysInfoView(APIView):
     permission_classes = [IsAuthenticated]
     renderer_classes = [UserRenderer]
-    serializer_class = SysInfoSerializer
     allowed_methods = ('GET')
 
     def get(self, request, format=None):
-        queryset = ScanData.objects.all()
-        serializer = SysInfoSerializer(queryset, many=True)
-        return Response(serializer.data)
+        user_id = request.user.id
+        userconnection_objects = UserConnection.objects.filter(user_id=user_id)
+        connected_user_list = []
+        for obj in userconnection_objects:
+            data = {
+                'machine_name': obj.machine_name,
+                'mac_address': obj.mac_address
+            }
+            connected_user_list.append(data)
+        message = {
+            'message': 'getting login user machine name and mac address ',
+            'connected_user_info': connected_user_list
+        }
+        return Response(message, status=status.HTTP_200_OK)
 
 
 class ItgnirDataView(APIView):
@@ -227,8 +238,19 @@ class ItgnirDataView(APIView):
     allowed_methods = ('POST')
 
     def post(self, request, format=None):
-        queryset = ScanData.objects.all()
-        serializer = ItgnirSerializer(queryset, many=True)
-        return Response(serializer.data)
+        machine_name = request.data['machine_name']
+        userconnection_obj = UserConnection.objects.get(machine_name=machine_name)
+        userconnection_id = userconnection_obj.id
 
+        # Filter ScanData objects based on created_at field
+        scan_objects_list = ScanData.objects.filter(
+            connection_user_id=userconnection_id,
+            created_at=datetime.now() - timedelta(minutes=10)
+        )
 
+        connected_user_list = []
+        message = {
+            'message': 'getting login user machine name and mac address ',
+            'connected_user_info': connected_user_list
+        }
+        return Response(message, status=status.HTTP_200_OK)
