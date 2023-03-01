@@ -1,17 +1,10 @@
-import React from "react";
-import {
-  AreaChart,
-  Area,
-  Tooltip,
-  CartesianGrid,
-  XAxis,
-  YAxis,
-  Label,
-} from "recharts";
+import axios from "axios";
+import { REACT_APP_API_URL } from "./utils";
+import { AreaChart, Area, Tooltip, XAxis, YAxis, Label } from "recharts";
 import Live from "../assets/icons/live.png";
 import Data from "../assets/icons/data.png";
 
-function WhatToDo({ goToPage }) {
+function WhatToDo({ goToPage, token }) {
   const data = [
     {
       time: 1676463556446,
@@ -45,14 +38,36 @@ function WhatToDo({ goToPage }) {
 
   var b = document.getElementsByTagName("svg");
   b[0]?.setAttribute("viewBox", "60 0 880 450");
+  const liveData = async () => {
+    try {
+
+      const resp = await axios.post(
+        REACT_APP_API_URL + "/user/is-scan/",
+        {
+          is_scan: 'yes',
+        },
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: "Bearer " + token,
+          },
+        }
+      );
+      if (resp.data && resp.status === 201) {
+        console.log("response is:", resp);
+        goToPage(4);
+      }
+    } catch (err) {
+      console.log("error while login", err);
+    }
+  };
 
   return (
     <div className="maindiv background">
       <div
         style={{
-          marginTop:"80px",
+          marginTop: "80px",
           display: "flex",
-          // justifyContent: "center",
           alignItems: "center",
           flexDirection: "column",
           height: "100%",
@@ -69,12 +84,12 @@ function WhatToDo({ goToPage }) {
             marginTop: "40px",
           }}
         >
-          <button className="btn" onClick={() => goToPage(4)} style={{}}>
+          <button className="btn" onClick={liveData} style={{}}>
             <img src={Live} alt="" />
             <br />
             Start Live Data
           </button>
-          <button className="btn" onClick={() => goToPage(4)} style={{}}>
+          <button className="btn" onClick={liveData} style={{}}>
             <img src={Data} alt="" width={30} />
             <br />
             Show Old Data

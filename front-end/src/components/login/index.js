@@ -12,6 +12,7 @@ function Login({ goToPage, setToken }) {
   const [errors, setErrors] = useState({
     email: "",
     password: "",
+    serverError: "",
   });
 
   const onChange = (e) => {
@@ -20,37 +21,53 @@ function Login({ goToPage, setToken }) {
     if (errors[name].length > 0) {
       setErrors({ ...errors, [name]: "" });
     }
+    if (errors["serverError"].length > 0) {
+      setErrors({ ...errors, serverError: "" });
+    }
   };
 
   const clickLogin = async () => {
-    // if (obj.email.length === 0) {
-    //   setErrors({ ...errors, email: "Email is required" });
-    //   return;
-    // }
-    // if (obj.password.length === 0) {
-    //   setErrors({ ...errors, password: "Password is required" });
-    //   return;
-    // }
+    if (obj.email.length === 0) {
+      setErrors({ ...errors, email: "Email is required" });
+      return;
+    }
+    if (obj.password.length === 0) {
+      setErrors({ ...errors, password: "Password is required" });
+      return;
+    }
+
     try {
-      // const resp = await axios.post(
-      //   REACT_APP_API_URL + "/user/login/",
-      //   {
-      //     email: obj["email"],
-      //     password: obj["password"],
-      //   },
-      //   {
-      //     headers: {
-      //       "Content-Type": "multipart/form-data",
-      //     },
-      //   }
-      // );
-      // if (resp.data && resp.status === 200) {
-      if (true) {
-        // setToken(resp.data.token.access);
+      const resp = await axios.post(
+        REACT_APP_API_URL + "/user/login/",
+        {
+          email: obj["email"],
+          password: obj["password"],
+        },
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+      if (resp.data && resp.status === 200) {
+        setToken(resp.data.token.access);
         goToPage(3);
       }
-    } catch (err) {
-      console.log("error while login", err);
+    } catch (error) {
+      console.log("error while login", error);
+      if (
+        error &&
+        error.response &&
+        error.response.data &&
+        error.response.data.errors
+      ) {
+        setErrors({
+          ...errors,
+          serverError: error.response.data.errors,
+        });
+        return;
+      }
+      setErrors({ ...errors, serverError: error.message });
     }
   };
 
@@ -92,6 +109,11 @@ function Login({ goToPage, setToken }) {
             {errors["password"].length > 0 && (
               <span style={{ color: "red", fontSize: 13 }}>
                 {errors["password"]}
+              </span>
+            )}
+            {errors["serverError"].length > 0 && (
+              <span style={{ color: "red", fontSize: 13 }}>
+                {errors["serverError"]}
               </span>
             )}
           </div>
