@@ -191,11 +191,18 @@ class IsScanView(CreateAPIView):
 class ScanDataView(CreateAPIView):
     permission_classes = [IsAuthenticated]
     renderer_classes = [UserRenderer]
-    serializer_class = ScanDataSerializer
     allowed_methods = ('POST',)
     parser_classes = [MultiPartParser, FormParser]
 
     def post(self, request, format=None, **kwargs):
-        serializer = ScanDataSerializer(data=request.data, context={'request': request})
-        serializer.is_valid(raise_exception=True)
+        machine_name = request.data['machine_name']
+        user_connection_obj = UserConnection.objects.get(machine_name=machine_name)
+        request_data = {'connection_user': user_connection_obj}
+        energy_wavelength_data = request.data.getlist('energy_wavelength_data')
+        energy_wavelength_list = [eval(data) for data in energy_wavelength_data]
+        for energy, wavelength in energy_wavelength_list:
+            request_data['energy'] = energy
+            request_data['wavelength'] = wavelength
+            ScanData.objects.create(**request_data)
+        print('Data Scanned Successfully')
         return Response({'msg': 'Data Scanned Successfully'}, status=status.HTTP_201_CREATED)

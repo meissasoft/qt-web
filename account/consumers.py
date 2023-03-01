@@ -6,6 +6,7 @@ from channels.generic.websocket import AsyncWebsocketConsumer
 connections = {}
 machine_name = ''
 
+
 class ChatConsumer(AsyncWebsocketConsumer):
 
     async def connect(self):
@@ -35,22 +36,25 @@ class ChatConsumer(AsyncWebsocketConsumer):
             del text_data_json['token']
             headers = {'Authorization': f'Bearer {bearer_token}'} if bearer_token else {}
             async with aiohttp.ClientSession() as session:
-                async with session.post('https://ac20-39-62-223-184.in.ngrok.io/api/user/user-connection/', data=text_data_json,
+                async with session.post('https://2ff6-202-59-90-27.ap.ngrok.io/api/user/user-connection/',
+                                        data=text_data_json,
                                         headers=headers) as resp:
                     # Do something with the response, like sending it back to the WebSocket client
                     response = {'message': 'user connection created successfully'}
                     # send message to client
                     await connections[user_id].send(json.dumps(response))
 
-        elif 'wavelength' in text_data_json:
-            print("wavelength")
+        elif 'energy_wavelength_data' in text_data_json:
+            print("energy_wavelength_data")
             bearer_token = text_data_json.get('token')
             user_id = await self.get_user_id_from_token(bearer_token)
-            del text_data_json['token']
-            text_data_json['machine_name'] = f'{[machine_name]}'
+            original_list = text_data_json['energy_wavelength_data']
+            new_list = [(item[0], item[1]) for item in original_list]
+            request_data = {'energy_wavelength_data': new_list, 'machine_name': f'{[machine_name]}'}
             headers = {'Authorization': f'Bearer {bearer_token}'} if bearer_token else {}
             async with aiohttp.ClientSession() as session:
-                async with session.post('https://ac20-39-62-223-184.in.ngrok.io/api/user/scan-data/', data=text_data_json,
+                async with session.post('https://2ff6-202-59-90-27.ap.ngrok.io/api/user/scan-data/',
+                                        data=request_data,
                                         headers=headers) as resp:
                     # Do something with the response, like sending it back to the WebSocket client
                     response = {'message': 'data scanned successfully'}
@@ -64,7 +68,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
             text_data_json['machine_name'] = f'{[machine_name]}'
             headers = {'Authorization': f'Bearer {bearer_token}'} if bearer_token else {}
             async with aiohttp.ClientSession() as session:
-                async with session.put('https://ac20-39-62-223-184.in.ngrok.io/api/user/user-connection/', data=text_data_json,
+                async with session.put('https://2ff6-202-59-90-27.ap.ngrok.io/api/user/user-connection/',
+                                       data=text_data_json,
                                        headers=headers) as resp:
                     # Do something with the response, like sending it back to the WebSocket client
                     response = {'message': 'user connection updated successfully'}
