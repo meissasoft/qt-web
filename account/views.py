@@ -21,7 +21,7 @@ from rest_framework.views import APIView
 from account.models import ScanData
 from account.serializers import SendPasswordResetEmailSerializer, UserChangePasswordSerializer, UserLoginSerializer, \
     UserPasswordResetSerializer, UserProfileSerializer, UserRegistrationSerializer, UpdateRegisterUserSerializer, \
-    ScanDataSerializer, UserConnectionSerializer, IsScanSerializer
+    ScanDataSerializer, UserConnectionSerializer, IsScanSerializer, SysInfoSerializer, ItgnirSerializer
 from django.contrib.auth import authenticate
 from account.renderers import UserRenderer
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -191,7 +191,7 @@ class IsScanView(CreateAPIView):
 class ScanDataView(CreateAPIView):
     permission_classes = [IsAuthenticated]
     renderer_classes = [UserRenderer]
-    allowed_methods = ('POST',)
+    allowed_methods = ('POST')
     parser_classes = [MultiPartParser, FormParser]
 
     def post(self, request, format=None, **kwargs):
@@ -206,3 +206,29 @@ class ScanDataView(CreateAPIView):
             ScanData.objects.create(**request_data)
         print('Data Scanned Successfully')
         return Response({'msg': 'Data Scanned Successfully'}, status=status.HTTP_201_CREATED)
+
+
+class SysInfoView(APIView):
+    permission_classes = [IsAuthenticated]
+    renderer_classes = [UserRenderer]
+    serializer_class = SysInfoSerializer
+    allowed_methods = ('GET')
+
+    def get(self, request, format=None):
+        queryset = ScanData.objects.all()
+        serializer = SysInfoSerializer(queryset, many=True)
+        return Response(serializer.data)
+
+
+class ItgnirDataView(APIView):
+    permission_classes = [IsAuthenticated]
+    renderer_classes = [UserRenderer]
+    serializer_class = ItgnirSerializer
+    allowed_methods = ('POST')
+
+    def post(self, request, format=None):
+        queryset = ScanData.objects.all()
+        serializer = ItgnirSerializer(queryset, many=True)
+        return Response(serializer.data)
+
+
