@@ -1,10 +1,8 @@
 import React from "react";
-// import { LineChart, Line, Tooltip } from "recharts";
 import {
   AreaChart,
   Area,
   Tooltip,
-  CartesianGrid,
   XAxis,
   YAxis,
   Label,
