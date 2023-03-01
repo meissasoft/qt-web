@@ -183,7 +183,7 @@ class IsScanView(CreateAPIView):
         if is_scan == 'yes':
             user_id = request.user.id
             async_to_sync(send_and_receive)(request_data={'is_scan_data': 'yes', 'user_id': user_id})
-            return Response({'msg': 'ok'}, status=status.HTTP_201_CREATED)
+            return Response({'message': 'data Scanning is in progress'}, status=status.HTTP_201_CREATED)
         else:
             return Response({'Error': 'Select is_scan yes for scanning the data'}, status=status.HTTP_400_BAD_REQUEST)
 
