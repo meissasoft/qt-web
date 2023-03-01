@@ -76,7 +76,7 @@ function Signup({ goToPage, setToken }) {
       );
       if (resp.data && resp.status === 201) {
         setToken(resp.data.token.access);
-        goToPage(3);
+        goToPage(1);
       }
     } catch (error) {
       console.log("error while signing up", error);

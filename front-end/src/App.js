@@ -26,7 +26,7 @@ function App() {
     0: <Intro goToPage={goToPage} />,
     1: <Login goToPage={goToPage} setToken={setToken} />,
     2: <Signup goToPage={goToPage} setToken={setToken} />,
-    3: <WhatToDo goToPage={goToPage} />,
+    3: <WhatToDo goToPage={goToPage} token={token}/>,
     4: <THC goToPage={goToPage} />,
     5: <Reference goToPage={goToPage} />,
     6: <Ensure goToPage={goToPage} />,
@@ -38,9 +38,7 @@ function App() {
     12: <Sure goToPage={goToPage} />,
   };
 
-  console.log({ token });
-
-  return <div className="body1">{content[page]}</div>;
+  return <div>{content[page]}</div>;
 }
 
 export default App;

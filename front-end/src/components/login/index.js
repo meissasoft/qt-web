@@ -12,6 +12,7 @@ function Login({ goToPage, setToken }) {
   const [errors, setErrors] = useState({
     email: "",
     password: "",
+    serverError: "",
   });
 
   const onChange = (e) => {
@@ -19,6 +20,9 @@ function Login({ goToPage, setToken }) {
     setObj({ ...obj, [name]: value });
     if (errors[name].length > 0) {
       setErrors({ ...errors, [name]: "" });
+    }
+    if (errors["serverError"].length > 0) {
+      setErrors({ ...errors, serverError: "" });
     }
   };
 
@@ -31,6 +35,7 @@ function Login({ goToPage, setToken }) {
       setErrors({ ...errors, password: "Password is required" });
       return;
     }
+
     try {
       const resp = await axios.post(
         REACT_APP_API_URL + "/user/login/",
@@ -48,14 +53,27 @@ function Login({ goToPage, setToken }) {
         setToken(resp.data.token.access);
         goToPage(3);
       }
-    } catch (err) {
-      console.log("error while login", err);
+    } catch (error) {
+      console.log("error while login", error);
+      if (
+        error &&
+        error.response &&
+        error.response.data &&
+        error.response.data.errors
+      ) {
+        setErrors({
+          ...errors,
+          serverError: error.response.data.errors,
+        });
+        return;
+      }
+      setErrors({ ...errors, serverError: error.message });
     }
   };
 
   return (
     <div className="h-full">
-      <div className="container h-full" id="mainclass">
+      <div className="container background" id="mainclass">
         <div className="form mt-5">
           <h4 className="login">Login to your account </h4>
           <div className="col-md-3">
@@ -91,6 +109,11 @@ function Login({ goToPage, setToken }) {
             {errors["password"].length > 0 && (
               <span style={{ color: "red", fontSize: 13 }}>
                 {errors["password"]}
+              </span>
+            )}
+            {errors["serverError"].length > 0 && (
+              <span style={{ color: "red", fontSize: 13 }}>
+                {errors["serverError"]}
               </span>
             )}
           </div>

@@ -3,7 +3,7 @@ import React from 'react'
 function SaveInfo({goToPage}) {
   return (
     
-    <div className='maindiv' style={{display:"flex" , flexDirection :"column" , alignItems:"center ", justifyContent :"center"}}>
+    <div className='maindiv background' style={{display:"flex" , flexDirection :"column" , alignItems:"center ", justifyContent :"center"}}>
       <p style={{ fontSize:"30px" , fontWeight:"500" , marginBottom:"2rem"}}>
       What would you like to name the new file?
       </p>

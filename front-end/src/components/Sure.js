@@ -2,7 +2,7 @@ import React from 'react'
 
 function Sure() {
   return (
-    <div className='maindiv'>
+    <div className='maindiv background'>
     <div style={{display:"flex" , justifyContent:"center" , alignItems:"center" ,flexDirection :"column" , height:"100%"}}>
       <p style={{ fontSize:"30px" , fontWeight:"500" , marginBottom:"2rem"}}>Do You Want to Stop Collecting </p>
       <p style={{ fontSize:"30px" , fontWeight:"500" , marginTop:"-30px"}}>Live Data? </p>
