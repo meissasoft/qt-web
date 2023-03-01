@@ -4,19 +4,43 @@ import uuid
 import socket
 import asyncio
 import requests
+import telnetlib
 import threading
+import subprocess
 from websockets import connect
 
 
 class DjangoWebsocketService:
     def __init__(self):
-        self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        # self.run_itgnir()
+        self.tn = telnetlib.Telnet("localhost", 44444)
+        self.scan = 'scan'
+        self.continue_scan = 'continue'
         self.token = None
-        self.host = '127.0.0.1'
-        self.port = 4444
-        self.client_socket.connect((self.host, self.port))
-        self.ws = 'wss://ac20-39-62-223-184.in.ngrok.io/ws/socket-server/'
+        self.ws = 'wss://2ff6-202-59-90-27.ap.ngrok.io/ws/socket-server/'
         self.websocket = None
+
+    def check_itgnir_network(self):
+        output = subprocess.check_output('tasklist', shell=True, text=True)
+        if "ITGNIR_original.exe" in output:
+            return True
+
+    def start_itgnir_network(self, path):
+        try:
+            subprocess.run(f'{path} network', shell=True, check=True)
+            print(f"ITGNIR has been started")
+        except FileNotFoundError:
+            print(f"{path} does not exist")
+        except subprocess.CalledProcessError:
+            print(f"Failed to start ITGNIR network")
+
+    def run_itgnir(self):
+        path = 'ITGNIR.lnk'
+
+        if self.check_itgnir_network():
+            print("ITGNIR is already running")
+        else:
+            self.start_itgnir_network(path)
 
     def login(self, username, password):
         login_data = {
@@ -32,7 +56,7 @@ class DjangoWebsocketService:
         headers = {}
         if self.token:
             headers['Authorization'] = f'Token {self.token}'
-        response = requests.request("POST", 'https://ac20-39-62-223-184.in.ngrok.io/api/user/login/',
+        response = requests.request("POST", 'https://2ff6-202-59-90-27.ap.ngrok.io/api/user/login/',
                                     headers=headers,
                                     data=payload)
         return response.json()
@@ -59,10 +83,19 @@ class DjangoWebsocketService:
                 # thread1.join()
             return message_data
 
-    def send_message_to_itgnir(self, message):
-        self.client_socket.sendall(message.encode())
-        response = self.client_socket.recv(1024).decode()
-        return response
+    def send_commands_to_itgnir(self):
+        self.tn.write(self.scan.encode('ascii') + b'\n')
+        self.tn.read_until(b'Scanning..')
+        self.tn.write(self.continue_scan.encode('ascii') + b'\n')
+        self.tn.read_until(b'SAMPLE')
+        self.tn.write(self.continue_scan.encode('ascii') + b'\n')
+        data = self.tn.read_until(b'Dump').decode('utf-8')
+        original_list = data.split(':')[-1].replace('Dump', '').replace('\r', '').split('\n')[1:-1]
+        converted_list = [(int(x.split(',')[0]), float(x.split(',')[1])) for x in original_list]
+        print(data)
+        with open('itgnir_data.txt', 'w') as f:
+            f.write(data)
+        return converted_list
 
     async def send_system_data_request(self):
         mac_address = ':'.join(['{:02x}'.format((uuid.getnode() >> ele) & 0xff)
@@ -81,9 +114,8 @@ class DjangoWebsocketService:
     async def take_scan_loop(self, data):
         print("receive")
         if data['is_scan_data'] == 'yes':
-            scan_data = self.send_message_to_itgnir('take scan')
-            scan_data = eval(scan_data)
-            scan_data['token'] = self.token
+            response = self.send_commands_to_itgnir()
+            scan_data = {'energy_wavelength_data': response, 'token': self.token}
             return scan_data
 
     async def update_user_connection_status_loop(self):
