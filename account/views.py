@@ -10,6 +10,7 @@ from datetime import datetime, timedelta
 from channels.layers import get_channel_layer
 from django.http import Http404, JsonResponse
 from django.utils import timezone
+from drf_yasg.utils import swagger_auto_schema
 from rest_framework.generics import CreateAPIView
 from rest_framework import viewsets
 from rest_framework.parsers import MultiPartParser, FormParser
@@ -22,7 +23,7 @@ from rest_framework.views import APIView
 from account.models import ScanData
 from account.serializers import SendPasswordResetEmailSerializer, UserChangePasswordSerializer, UserLoginSerializer, \
     UserPasswordResetSerializer, UserProfileSerializer, UserRegistrationSerializer, UpdateRegisterUserSerializer, \
-    UserConnectionSerializer, IsScanSerializer
+    UserConnectionSerializer, IsScanSerializer, ScanDataSerializer, SysInfoSerializer, ItgnirSerializer
 from django.contrib.auth import authenticate
 from account.renderers import UserRenderer
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -192,7 +193,7 @@ class IsScanView(CreateAPIView):
 class ScanDataView(APIView):
     permission_classes = [IsAuthenticated]
     renderer_classes = [UserRenderer]
-    allowed_methods = ('POST')
+    serializer_class = ScanDataSerializer
     parser_classes = [MultiPartParser, FormParser]
 
     def post(self, request, format=None, **kwargs):
@@ -212,7 +213,7 @@ class ScanDataView(APIView):
 class SysInfoView(APIView):
     permission_classes = [IsAuthenticated]
     renderer_classes = [UserRenderer]
-    allowed_methods = ('GET')
+    serializer_class = SysInfoSerializer
 
     def get(self, request, format=None):
         try:
@@ -237,7 +238,7 @@ class SysInfoView(APIView):
 class ItgnirDataView(APIView):
     permission_classes = [IsAuthenticated]
     renderer_classes = [UserRenderer]
-    allowed_methods = ('POST')
+    serializer_class = ItgnirSerializer
 
     def post(self, request, format=None):
         try:

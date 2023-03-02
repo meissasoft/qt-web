@@ -187,24 +187,16 @@ class UserConnectionSerializer(serializers.ModelSerializer):
 
 
 class IsScanSerializer(serializers.Serializer):
-    is_scan = serializers.ChoiceField(choices=[('yes', 'Yes'), ('no', 'No')],
-                                      default="yes")
+    pass
 
 
-# class ScanDataSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = ScanData
-#         fields = ['wavelength', 'energy']
-#
-#     def validate(self, attrs):
-#         request_data = dict(attrs)
-#         try:
-#             # user_id = self.context['request'].user.id
-#             machine_name = self.context['request'].data['machine_name']
-#             user_connection_obj = UserConnection.objects.get(machine_name=machine_name)
-#             # user_connection_instance = UserConnection.objects.get(user_id=user_id)
-#             request_data['connection_user'] = user_connection_obj
-#             response = ScanData.objects.create(**request_data)
-#             return response
-#         except Exception as e:
-#             raise serializers.ValidationError(e)
+class ScanDataSerializer(serializers.ModelSerializer):
+    pass
+
+
+class SysInfoSerializer(serializers.ModelSerializer):
+    pass
+
+
+class ItgnirSerializer(serializers.ModelSerializer):
+    pass
