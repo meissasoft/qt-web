@@ -22,7 +22,7 @@ from rest_framework.views import APIView
 from account.models import ScanData
 from account.serializers import SendPasswordResetEmailSerializer, UserChangePasswordSerializer, UserLoginSerializer, \
     UserPasswordResetSerializer, UserProfileSerializer, UserRegistrationSerializer, UpdateRegisterUserSerializer, \
-    ScanDataSerializer, UserConnectionSerializer, IsScanSerializer, ItgnirSerializer
+    UserConnectionSerializer, IsScanSerializer
 from django.contrib.auth import authenticate
 from account.renderers import UserRenderer
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -189,7 +189,7 @@ class IsScanView(CreateAPIView):
             return Response({'Error': 'Select is_scan yes for scanning the data'}, status=status.HTTP_400_BAD_REQUEST)
 
 
-class ScanDataView(CreateAPIView):
+class ScanDataView(APIView):
     permission_classes = [IsAuthenticated]
     renderer_classes = [UserRenderer]
     allowed_methods = ('POST')
@@ -215,42 +215,55 @@ class SysInfoView(APIView):
     allowed_methods = ('GET')
 
     def get(self, request, format=None):
-        user_id = request.user.id
-        userconnection_objects = UserConnection.objects.filter(user_id=user_id)
-        connected_user_list = []
-        for obj in userconnection_objects:
-            data = {
-                'machine_name': obj.machine_name,
-                'mac_address': obj.mac_address
+        try:
+            user_id = request.user.id
+            userconnection_objects = UserConnection.objects.filter(user_id=user_id)
+            connected_user_list = []
+            for obj in userconnection_objects:
+                data = {
+                    'machine_name': obj.machine_name,
+                    'mac_address': obj.mac_address
+                }
+                connected_user_list.append(data)
+            message = {
+                'message': 'machine names and mac addresses for login user',
+                'connected_user_info': connected_user_list
             }
-            connected_user_list.append(data)
-        message = {
-            'message': 'getting login user machine name and mac address ',
-            'connected_user_info': connected_user_list
-        }
-        return Response(message, status=status.HTTP_200_OK)
+            return Response(message, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({f'Error: {e}'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class ItgnirDataView(APIView):
     permission_classes = [IsAuthenticated]
     renderer_classes = [UserRenderer]
-    serializer_class = ItgnirSerializer
     allowed_methods = ('POST')
 
     def post(self, request, format=None):
-        machine_name = request.data['machine_name']
-        userconnection_obj = UserConnection.objects.get(machine_name=machine_name)
-        userconnection_id = userconnection_obj.id
+        try:
+            machine_name = request.data['machine_name']
+            userconnection_obj = UserConnection.objects.get(machine_name=machine_name)
+            userconnection_id = userconnection_obj.id
+            current_time = timezone.now()
+            time_10_mints_ago = current_time - timezone.timedelta(minutes=10)
+            scan_objects_list = ScanData.objects.filter(
+                connection_user_id=userconnection_id,
+                created_at__gte=time_10_mints_ago
+            )
+            itgnir_data = []
+            for obj in scan_objects_list:
+                energy = obj.energy
+                wavelength = obj.wavelength
+                data = {
+                    'energy': energy,
+                    'wavelength': wavelength
+                }
+                itgnir_data.append(data)
+            message = {
+                'message': 'energy and wavelength data between the last 10 mints',
+                'itgnir_data': itgnir_data
+            }
+            return Response(message, status=status.HTTP_200_OK)
+        except Exception as e:
 
-        # Filter ScanData objects based on created_at field
-        scan_objects_list = ScanData.objects.filter(
-            connection_user_id=userconnection_id,
-            created_at=datetime.now() - timedelta(minutes=10)
-        )
-
-        connected_user_list = []
-        message = {
-            'message': 'getting login user machine name and mac address ',
-            'connected_user_info': connected_user_list
-        }
-        return Response(message, status=status.HTTP_200_OK)
+            return Response({f'Error: {e}'}, status=status.HTTP_400_BAD_REQUEST)
