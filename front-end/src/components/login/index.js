@@ -51,7 +51,7 @@ function Login({ goToPage, setToken }) {
       );
       if (resp.data && resp.status === 200) {
         setToken(resp.data.token.access);
-        goToPage(3);
+        goToPage(13);
       }
     } catch (error) {
       console.log("error while login", error);

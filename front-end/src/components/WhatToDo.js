@@ -4,37 +4,7 @@ import { AreaChart, Area, Tooltip, XAxis, YAxis, Label } from "recharts";
 import Live from "../assets/icons/live.png";
 import Data from "../assets/icons/data.png";
 
-function WhatToDo({ goToPage, token }) {
-  const data = [
-    {
-      time: 1676463556446,
-      thc: 10.1,
-    },
-    {
-      time: 1676463683942,
-      thc: 15.2,
-    },
-    {
-      time: 1676463556450,
-      thc: 20.6,
-    },
-    {
-      time: 1676463556446,
-      thc: 32.3,
-    },
-    {
-      time: 1676463556446,
-      thc: 40.3,
-    },
-    {
-      time: 1676463683942,
-      thc: 50.2,
-    },
-    {
-      time: 1676463556448,
-      thc: 55.3,
-    },
-  ];
+function WhatToDo({ goToPage, token,graphData }) {
 
   var b = document.getElementsByTagName("svg");
   b[0]?.setAttribute("viewBox", "60 0 880 450");
@@ -70,7 +40,7 @@ function WhatToDo({ goToPage, token }) {
           display: "flex",
           alignItems: "center",
           flexDirection: "column",
-          height: "100%",
+          height: "90%",
         }}
       >
         <h1 className="text" style={{}}>
@@ -115,7 +85,7 @@ function WhatToDo({ goToPage, token }) {
           <AreaChart
             width={800}
             height={390}
-            data={data}
+            data={graphData}
             margin={{ top: 5, right: 20, bottom: 5, left: 0 }}
           >
             <defs>
@@ -126,16 +96,16 @@ function WhatToDo({ goToPage, token }) {
             </defs>
             <Area
               type="monotone"
-              dataKey="thc"
+              dataKey="energy"
               stroke="#2b61af"
               fill="url(#colorUv)"
             ></Area>
-            <XAxis dataKey="time" tick={false}>
+            <XAxis dataKey="wavelength" tick={false}>
               <Label style={{ fontSize: "130%", fill: "black" }}>
-                Time (minutes)
+                Wavelength
               </Label>
             </XAxis>
-            <YAxis dataKey="thc" tick={false}>
+            <YAxis dataKey="energy" tick={false}>
               <Label
                 style={{
                   textAnchor: "middle",
@@ -143,7 +113,7 @@ function WhatToDo({ goToPage, token }) {
                   fill: "black",
                 }}
                 angle={270}
-                value={"THC PREDICTION (%)"}
+                value={"Energy"}
               />
             </YAxis>
             <Tooltip />
