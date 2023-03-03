@@ -1,4 +1,6 @@
 import json
+import os
+
 import aiohttp
 from rest_framework_simplejwt.tokens import AccessToken
 from channels.generic.websocket import AsyncWebsocketConsumer
@@ -27,6 +29,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
     async def receive(self, text_data):
         global connections
         global machine_name
+        ngrok_url = os.environ.get('ENGROK_URL')
         text_data_json = json.loads(text_data)
         if 'machine_name' in text_data_json:
             machine_name = text_data_json['machine_name']
@@ -36,7 +39,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
             del text_data_json['token']
             headers = {'Authorization': f'Bearer {bearer_token}'} if bearer_token else {}
             async with aiohttp.ClientSession() as session:
-                async with session.post('https://1241-202-59-90-27.ap.ngrok.io/api/user/user-connection/',
+                async with session.post(ngrok_url + '/api/user/user-connection/',
                                         data=text_data_json,
                                         headers=headers) as resp:
                     # Do something with the response, like sending it back to the WebSocket client
@@ -53,7 +56,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
             request_data = {'energy_wavelength_data': new_list, 'machine_name': f'{[machine_name]}'}
             headers = {'Authorization': f'Bearer {bearer_token}'} if bearer_token else {}
             async with aiohttp.ClientSession() as session:
-                async with session.post('https://1241-202-59-90-27.ap.ngrok.io/api/user/scan-data/',
+                async with session.post(ngrok_url + '/api/user/scan-data/',
                                         data=request_data,
                                         headers=headers) as resp:
                     # Do something with the response, like sending it back to the WebSocket client
@@ -68,7 +71,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
             text_data_json['machine_name'] = f'{[machine_name]}'
             headers = {'Authorization': f'Bearer {bearer_token}'} if bearer_token else {}
             async with aiohttp.ClientSession() as session:
-                async with session.put('https://1241-202-59-90-27.ap.ngrok.io/api/user/user-connection/',
+                async with session.put(ngrok_url + '/api/user/user-connection/',
                                        data=text_data_json,
                                        headers=headers) as resp:
                     # Do something with the response, like sending it back to the WebSocket client
