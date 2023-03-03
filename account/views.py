@@ -6,9 +6,11 @@ import websockets
 from datetime import datetime
 
 from asgiref.sync import async_to_sync
+from datetime import datetime, timedelta
 from channels.layers import get_channel_layer
 from django.http import Http404, JsonResponse
 from django.utils import timezone
+from drf_yasg.utils import swagger_auto_schema
 from rest_framework.generics import CreateAPIView
 from rest_framework import viewsets
 from rest_framework.parsers import MultiPartParser, FormParser
@@ -21,7 +23,7 @@ from rest_framework.views import APIView
 from account.models import ScanData
 from account.serializers import SendPasswordResetEmailSerializer, UserChangePasswordSerializer, UserLoginSerializer, \
     UserPasswordResetSerializer, UserProfileSerializer, UserRegistrationSerializer, UpdateRegisterUserSerializer, \
-    ScanDataSerializer, UserConnectionSerializer, IsScanSerializer
+    UserConnectionSerializer, IsScanSerializer, ScanDataSerializer, SysInfoSerializer, ItgnirSerializer
 from django.contrib.auth import authenticate
 from account.renderers import UserRenderer
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -179,19 +181,25 @@ class IsScanView(CreateAPIView):
     parser_classes = [MultiPartParser, FormParser]
 
     def post(self, request, format=None, **kwargs):
-        is_scan = dict(request.data)['is_scan'][0]
-        if is_scan == 'yes':
-            user_id = request.user.id
-            async_to_sync(send_and_receive)(request_data={'is_scan_data': 'yes', 'user_id': user_id})
-            return Response({'msg': 'ok'}, status=status.HTTP_201_CREATED)
-        else:
-            return Response({'Error': 'Select is_scan yes for scanning the data'}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            if len(request.data) == 0:
+                return Response({f'Error': 'invalid payload'}, status=status.HTTP_400_BAD_REQUEST)
+            is_scan = dict(request.data)['is_scan'][0]
+            if is_scan == 'yes':
+                user_id = request.user.id
+                async_to_sync(send_and_receive)(request_data={'is_scan_data': 'yes', 'user_id': user_id})
+                return Response({'message': 'data Scanning is in progress'}, status=status.HTTP_201_CREATED)
+            else:
+                return Response({'Error': 'select is_scan yes for scanning the data'},
+                                status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response({f'Error: {e}'}, status=status.HTTP_400_BAD_REQUEST)
 
 
-class ScanDataView(CreateAPIView):
+class ScanDataView(APIView):
     permission_classes = [IsAuthenticated]
     renderer_classes = [UserRenderer]
-    allowed_methods = ('POST',)
+    serializer_class = ScanDataSerializer
     parser_classes = [MultiPartParser, FormParser]
 
     def post(self, request, format=None, **kwargs):
@@ -206,3 +214,65 @@ class ScanDataView(CreateAPIView):
             ScanData.objects.create(**request_data)
         print('Data Scanned Successfully')
         return Response({'msg': 'Data Scanned Successfully'}, status=status.HTTP_201_CREATED)
+
+
+class SysInfoView(APIView):
+    permission_classes = [IsAuthenticated]
+    renderer_classes = [UserRenderer]
+    serializer_class = SysInfoSerializer
+
+    def get(self, request, format=None):
+        try:
+            user_id = request.user.id
+            userconnection_objects = UserConnection.objects.filter(user_id=user_id)
+            connected_user_list = []
+            for obj in userconnection_objects:
+                data = {
+                    'machine_name': obj.machine_name,
+                    'mac_address': obj.mac_address
+                }
+                connected_user_list.append(data)
+            message = {
+                'message': 'machine names and mac addresses for login user',
+                'connected_user_info': connected_user_list
+            }
+            return Response(message, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({f'Error: {e}'}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class ItgnirDataView(APIView):
+    permission_classes = [IsAuthenticated]
+    renderer_classes = [UserRenderer]
+    serializer_class = ItgnirSerializer
+
+    def post(self, request, format=None):
+        try:
+            if len(request.data) == 0:
+                return Response({f'Error': 'invalid payload'}, status=status.HTTP_400_BAD_REQUEST)
+            machine_name = request.data['machine_name']
+            userconnection_obj = UserConnection.objects.get(machine_name=machine_name)
+            userconnection_id = userconnection_obj.id
+            current_time = timezone.now()
+            time_10_mints_ago = current_time - timezone.timedelta(minutes=2880)
+            scan_objects_list = ScanData.objects.filter(
+                connection_user_id=userconnection_id,
+                created_at__gte=time_10_mints_ago
+            )
+            itgnir_data = []
+            for obj in scan_objects_list:
+                energy = obj.energy
+                wavelength = obj.wavelength
+                data = {
+                    'energy': energy,
+                    'wavelength': wavelength
+                }
+                itgnir_data.append(data)
+            message = {
+                'message': 'energy and wavelength data between the last 2 days',
+                'itgnir_data': itgnir_data
+            }
+            return Response(message, status=status.HTTP_200_OK)
+        except Exception as e:
+
+            return Response({f'Error: {e}'}, status=status.HTTP_400_BAD_REQUEST)

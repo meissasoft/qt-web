@@ -90,5 +90,6 @@ class UserConnection(models.Model):
 
 class ScanData(models.Model):
     connection_user = models.ForeignKey(UserConnection, on_delete=models.CASCADE)
-    wavelength = models.FloatField()
     energy = models.FloatField()
+    wavelength = models.FloatField()
+    created_at = models.DateTimeField(auto_now_add=True)
