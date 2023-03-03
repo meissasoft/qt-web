@@ -5,7 +5,7 @@ import Live from "../assets/icons/live.png";
 import Data from "../assets/icons/data.png";
 
 function WhatToDo({ goToPage, token,graphData }) {
-
+// console.log(graphData.energy)
   var b = document.getElementsByTagName("svg");
   b[0]?.setAttribute("viewBox", "60 0 880 450");
   const liveData = async () => {
@@ -24,7 +24,7 @@ function WhatToDo({ goToPage, token,graphData }) {
         }
       );
       if (resp.data && resp.status === 201) {
-        console.log("response is:", resp);
+        // console.log("response is:", resp);
         goToPage(4);
       }
     } catch (err) {

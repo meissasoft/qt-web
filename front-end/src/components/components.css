@@ -118,3 +118,16 @@
   font-size: large;
   padding-top: 15px;
 }
+.footer{
+  border: 2px solid white;
+  width: 300Px;
+  height: 60px;
+  text-align: center;
+  background-color: #b1bbce ;
+  padding: 3px;
+  text-decoration: none;
+  padding-left: 3px;
+  color: black;
+  font-size: large;
+  padding-top: 15px;
+}
