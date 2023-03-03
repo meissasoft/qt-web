@@ -13,13 +13,12 @@ import THC from "./components/THC";
 import { useCallback, useState } from "react";
 import Login from "./components/login";
 import Signup from "./components/signup";
-import List from "./components/list"
+import List from "./components/list";
 
 function App() {
   const [page, setPage] = useState(0);
   const [token, setToken] = useState("");
-  const [graphData,setGraphData] = useState([]);
-  // const [graphData1,setGraphData1] = useState([]);
+  const [graphData, setGraphData] = useState([]);
 
   const goToPage = useCallback((pageNumber) => {
     setPage(pageNumber);
@@ -29,13 +28,7 @@ function App() {
     if (data.length > 0) {
       setGraphData(data);
     }
-  }
-  // const setMachineGraphData1 = (data) => {
-  //   if (data.length > 0) {
-  //     setGraphData1(data);
-  //   }
-  // }
-
+  };
 
   const content = {
     0: <Intro goToPage={goToPage} />,
@@ -51,7 +44,13 @@ function App() {
     10: <PureSolvent goToPage={goToPage} />,
     11: <DisplayThc goToPage={goToPage} />,
     12: <Sure goToPage={goToPage} />,
-    13: <List goToPage={goToPage} token={token} setMachineGraphData={setMachineGraphData}  />,
+    13: (
+      <List
+        goToPage={goToPage}
+        token={token}
+        setMachineGraphData={setMachineGraphData}
+      />
+    ),
   };
 
   return <div>{content[page]}</div>;

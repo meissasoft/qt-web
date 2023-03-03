@@ -91,6 +91,7 @@ function List({ goToPage, token,setMachineGraphData}) {
           );
         })}
       </div>
+      <button className="machine" onClick={()=>goToPage(0)}> Go To Home</button>
     </div>
   );
 }
