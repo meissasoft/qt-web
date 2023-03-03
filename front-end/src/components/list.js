@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import { REACT_APP_API_URL } from "./utils";
 
-function List({ goToPage, token,setMachineGraphData}) {
+function List({ goToPage, token, setMachineGraphData }) {
   let [val, setVal] = useState([]);
 
   const fetchMachines = async () => {
@@ -40,10 +40,10 @@ function List({ goToPage, token,setMachineGraphData}) {
           },
         }
       );
-      console.log(resp.data)
+      console.log(resp.data);
       if (resp && resp.data && resp.data.itgnir_data) {
-        setMachineGraphData(resp.data.itgnir_data)
-        // setMachineGraphData1(resp.data.itgnir_data)
+        console.log(resp.data.itgnir_data);
+        setMachineGraphData(resp.data.itgnir_data);
         goToPage(3);
       }
     } catch (err) {
@@ -91,7 +91,10 @@ function List({ goToPage, token,setMachineGraphData}) {
           );
         })}
       </div>
-      <button className="machine" onClick={()=>goToPage(0)}> Go To Home</button>
+      <button className="footer" onClick={() => goToPage(0)}>
+        {" "}
+        Go To Home
+      </button>
     </div>
   );
 }

@@ -4,17 +4,16 @@ import { AreaChart, Area, Tooltip, XAxis, YAxis, Label } from "recharts";
 import Live from "../assets/icons/live.png";
 import Data from "../assets/icons/data.png";
 
-function WhatToDo({ goToPage, token,graphData }) {
-// console.log(graphData.energy)
+function WhatToDo({ goToPage, token, graphData }) {
+  // console.log(graphData.energy)
   var b = document.getElementsByTagName("svg");
   b[0]?.setAttribute("viewBox", "60 0 880 450");
   const liveData = async () => {
     try {
-
       const resp = await axios.post(
         REACT_APP_API_URL + "/user/is-scan/",
         {
-          is_scan: 'yes',
+          is_scan: "yes",
         },
         {
           headers: {
@@ -100,10 +99,8 @@ function WhatToDo({ goToPage, token,graphData }) {
               stroke="#2b61af"
               fill="url(#colorUv)"
             ></Area>
-            <XAxis dataKey="wavelength" tick={false}>
-              <Label style={{ fontSize: "130%", fill: "black" }}>
-                Wavelength
-              </Label>
+            <XAxis dataKey="time" tick={false}>
+              <Label style={{ fontSize: "130%", fill: "black" }}>Time</Label>
             </XAxis>
             <YAxis dataKey="energy" tick={false}>
               <Label
@@ -118,6 +115,10 @@ function WhatToDo({ goToPage, token,graphData }) {
             </YAxis>
             <Tooltip />
           </AreaChart>
+          <button className="footer" onClick={() => goToPage(0)}>
+            {" "}
+            Go To Home
+          </button>
         </div>
       </div>
     </div>

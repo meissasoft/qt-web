@@ -9,6 +9,7 @@ function RefSuccess({goToPage}) {
       <button className='btn' onClick={()=>goToPage(8)}>
       Let’s Get Going
       </button>
+      <button className="footer" onClick={()=>goToPage(0)}> Go To Home</button>
     </div>
   )
 }

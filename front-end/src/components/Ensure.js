@@ -33,6 +33,7 @@ function Ensure({ goToPage }) {
           </button>
         </div>
       </div>
+      <button className="footer" onClick={()=>goToPage(0)}> Go To Home</button>
     </div>
   );
 }

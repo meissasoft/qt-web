@@ -1,6 +1,6 @@
 import React from 'react'
 
-function Sure() {
+function Sure({goToPage}) {
   return (
     <div className='maindiv background'>
     <div style={{display:"flex" , justifyContent:"center" , alignItems:"center" ,flexDirection :"column" , height:"100%"}}>
@@ -16,6 +16,7 @@ function Sure() {
   </button>
 </div>
     </div>
+    <button className="footer" onClick={()=>goToPage(0)}> Go To Home</button>
   </div>
   )
 }

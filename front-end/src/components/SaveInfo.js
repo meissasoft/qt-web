@@ -11,6 +11,7 @@ function SaveInfo({goToPage}) {
       <button className='btn' style={{marginTop:"2rem"}} onClick={()=>goToPage(9)}>
     Go
       </button>
+      <button className="footer" onClick={()=>goToPage(0)}> Go To Home</button>
     </div>
   )
 }

@@ -42,6 +42,7 @@ function DisplayThc({ goToPage }) {
             Go to Machine List
           </button> */}
       </div>
+      <button className="footer" onClick={()=>goToPage(0)}> Go To Home</button>
     </div>
   );
 }

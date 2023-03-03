@@ -1,6 +1,6 @@
 import { AreaChart, Area, Tooltip, XAxis, YAxis, Label } from "recharts";
 
-function THC({ goToPage, token, graphData }) {
+function THC({ goToPage,  graphData }) {
   var b = document.getElementsByTagName("svg");
   b[0]?.setAttribute("viewBox", "60 0 880 450");
 
@@ -58,12 +58,12 @@ function THC({ goToPage, token, graphData }) {
               stroke="#2b61af"
               fill="url(#colorUv)"
             ></Area>
-            <XAxis dataKey="wavelength" tick={false}>
+            <XAxis dataKey="time" tick={false}>
               <Label style={{ fontSize: "130%", fill: "black" }}>
-                Wavelength
+                time
               </Label>
             </XAxis>
-            <YAxis dataKey="energy" tick={false}>
+            <YAxis dataKey="wavelength" tick={false}>
               <Label
                 style={{
                   textAnchor: "middle",
@@ -71,7 +71,7 @@ function THC({ goToPage, token, graphData }) {
                   fill: "black",
                 }}
                 angle={270}
-                value={"Energy"}
+                value={"wavelength"}
               />
             </YAxis>
             <Tooltip />
@@ -91,6 +91,7 @@ function THC({ goToPage, token, graphData }) {
           </button>
         </div>
       </div>
+      <button className="footer" onClick={()=>goToPage(0)}> Go To Home</button>
     </div>
   );
 }

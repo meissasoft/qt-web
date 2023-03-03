@@ -14,6 +14,7 @@ import { useCallback, useState } from "react";
 import Login from "./components/login";
 import Signup from "./components/signup";
 import List from "./components/list";
+import Welcome from "./components/Welcome";
 
 function App() {
   const [page, setPage] = useState(0);
@@ -26,6 +27,9 @@ function App() {
 
   const setMachineGraphData = (data) => {
     if (data.length > 0) {
+      // data.forEach((element,ind) => {
+      //   element.time = +new Date(element.time)
+      // });
       setGraphData(data);
     }
   };
@@ -44,13 +48,8 @@ function App() {
     10: <PureSolvent goToPage={goToPage} />,
     11: <DisplayThc goToPage={goToPage} />,
     12: <Sure goToPage={goToPage} />,
-    13: (
-      <List
-        goToPage={goToPage}
-        token={token}
-        setMachineGraphData={setMachineGraphData}
-      />
-    ),
+    13: <List goToPage={goToPage}  token={token}  setMachineGraphData={setMachineGraphData} />,
+    14: <Welcome goToPage={goToPage} />,
   };
 
   return <div>{content[page]}</div>;
