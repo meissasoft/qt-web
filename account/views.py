@@ -181,13 +181,19 @@ class IsScanView(CreateAPIView):
     parser_classes = [MultiPartParser, FormParser]
 
     def post(self, request, format=None, **kwargs):
-        is_scan = dict(request.data)['is_scan'][0]
-        if is_scan == 'yes':
-            user_id = request.user.id
-            async_to_sync(send_and_receive)(request_data={'is_scan_data': 'yes', 'user_id': user_id})
-            return Response({'message': 'data Scanning is in progress'}, status=status.HTTP_201_CREATED)
-        else:
-            return Response({'Error': 'Select is_scan yes for scanning the data'}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            if len(request.data) == 0:
+                return Response({f'Error': 'invalid payload'}, status=status.HTTP_400_BAD_REQUEST)
+            is_scan = dict(request.data)['is_scan'][0]
+            if is_scan == 'yes':
+                user_id = request.user.id
+                async_to_sync(send_and_receive)(request_data={'is_scan_data': 'yes', 'user_id': user_id})
+                return Response({'message': 'data Scanning is in progress'}, status=status.HTTP_201_CREATED)
+            else:
+                return Response({'Error': 'select is_scan yes for scanning the data'},
+                                status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response({f'Error: {e}'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class ScanDataView(APIView):
@@ -242,11 +248,13 @@ class ItgnirDataView(APIView):
 
     def post(self, request, format=None):
         try:
+            if len(request.data) == 0:
+                return Response({f'Error': 'invalid payload'}, status=status.HTTP_400_BAD_REQUEST)
             machine_name = request.data['machine_name']
             userconnection_obj = UserConnection.objects.get(machine_name=machine_name)
             userconnection_id = userconnection_obj.id
             current_time = timezone.now()
-            time_10_mints_ago = current_time - timezone.timedelta(minutes=10)
+            time_10_mints_ago = current_time - timezone.timedelta(minutes=2880)
             scan_objects_list = ScanData.objects.filter(
                 connection_user_id=userconnection_id,
                 created_at__gte=time_10_mints_ago
@@ -261,7 +269,7 @@ class ItgnirDataView(APIView):
                 }
                 itgnir_data.append(data)
             message = {
-                'message': 'energy and wavelength data between the last 10 mints',
+                'message': 'energy and wavelength data between the last 2 days',
                 'itgnir_data': itgnir_data
             }
             return Response(message, status=status.HTTP_200_OK)
