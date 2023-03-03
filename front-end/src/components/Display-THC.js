@@ -36,6 +36,11 @@ function DisplayThc({ goToPage }) {
             %
           </span>
         </p>
+        {/* <button className="btn" onClick={() => goToPage(13)} >
+            
+            
+            Go to Machine List
+          </button> */}
       </div>
     </div>
   );
