@@ -17,7 +17,7 @@ class DjangoWebsocketService:
         self.scan = 'scan'
         self.continue_scan = 'continue'
         self.token = None
-        self.ws = 'wss://2ff6-202-59-90-27.ap.ngrok.io/ws/socket-server/'
+        self.ws = 'wss://e281-202-59-90-27.ap.ngrok.io/ws/socket-server/'
         self.websocket = None
 
     def check_itgnir_network(self):
@@ -56,7 +56,7 @@ class DjangoWebsocketService:
         headers = {}
         if self.token:
             headers['Authorization'] = f'Token {self.token}'
-        response = requests.request("POST", 'https://2ff6-202-59-90-27.ap.ngrok.io/api/user/login/',
+        response = requests.request("POST", 'https://e281-202-59-90-27.ap.ngrok.io/api/user/login/',
                                     headers=headers,
                                     data=payload)
         return response.json()
