@@ -1,7 +1,7 @@
 import React from "react";
 import "./components.css";
-import Live from "../assets/icons/live.png";
-import Data from "../assets/icons/data.png";
+// import Live from "../assets/icons/live.png";
+// import Data from "../assets/icons/data.png";
 function Reference({ goToPage }) {
   return (
     <div className="maindiv background">
@@ -33,7 +33,7 @@ function Reference({ goToPage }) {
             marginTop: "40px",
           }}
         >
-          <button className="btn" onClick={() => goToPage(4)}>
+          {/* <button className="btn" onClick={() => goToPage(4)}>
             <img src={Live} alt="" />
             <br />
             Start Live Data
@@ -42,7 +42,7 @@ function Reference({ goToPage }) {
             <img src={Data} alt="" width={30} />
             <br />
             Show Old Data
-          </button>
+          </button> */}
         </div>
         <div
           style={{

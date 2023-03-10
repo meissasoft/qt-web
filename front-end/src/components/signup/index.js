@@ -98,7 +98,7 @@ function Signup({ goToPage, setToken }) {
   };
 
   return (
-    <div className="h-full">
+    <div className="h-full background">
       <div className="container h-full" id="mainclass">
         <div className="form ">
           <h1 className="login">Sign Up </h1>

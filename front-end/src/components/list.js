@@ -20,7 +20,9 @@ function List({ goToPage, token, setMachineGraphData }) {
         )
         .then((response) => {
           setVal(response.data);
-          val = response.data.connected_user_info;
+          // val = ;
+          val = JSON.stringify(response.data.connected_user_info);
+          console.log(val);
         });
     } catch (err) {
       console.log("error while fetching Mahchine", err);
@@ -85,7 +87,6 @@ function List({ goToPage, token, setMachineGraphData }) {
               onClick={() => getMachineData(val1.machine_name)}
               key={val1.machine_name}
             >
-              {" "}
               {val1.machine_name}
             </h2>
           );

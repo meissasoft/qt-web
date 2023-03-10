@@ -8,7 +8,10 @@ function SaveInfo({goToPage}) {
       What would you like to name the new file?
       </p>
       <input className='form-control' ></input>
-      <button className='btn' style={{marginTop:"2rem"}} onClick={()=>goToPage(9)}>
+      <button className='btn' style={{
+              width:"300px",
+              marginTop:"2rem"
+            }} onClick={()=>goToPage(9)}>
     Go
       </button>
       <button className="footer" onClick={()=>goToPage(0)}> Go To Home</button>
