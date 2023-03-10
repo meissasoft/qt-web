@@ -85,11 +85,23 @@ class DjangoWebsocketService:
 
     def send_commands_to_itgnir(self):
         self.tn.write(self.scan.encode('ascii') + b'\n')
-        self.tn.read_until(b'Scanning..')
-        self.tn.write(self.continue_scan.encode('ascii') + b'\n')
+        data = self.tn.read_all()
+        data_decoded = data.decode('utf-8')
+        if data_decoded.find('Scanning..'):
+            self.tn.write(self.continue_scan.encode('ascii') + b'\n')
+        else:
+            self.tn.write(self.scan.encode('ascii') + b'\n')
+            data = self.tn.read_all()
+            self.tn.write(self.continue_scan.encode('ascii') + b'\n')
+
         self.tn.read_until(b'SAMPLE')
         self.tn.write(self.continue_scan.encode('ascii') + b'\n')
-        data = self.tn.read_until(b'Dump').decode('utf-8')
+        data = self.tn.read_all().decode('utf-8')
+
+        if not data.find('Dump'):
+            self.tn.write(self.continue_scan.encode('ascii') + b'\n')
+            data = self.tn.read_all().decode('utf-8')
+
         original_list = data.split(':')[-1].replace('Dump', '').replace('\r', '').split('\n')[1:-1]
         converted_list = [(int(x.split(',')[0]), float(x.split(',')[1])) for x in original_list]
         print(data)
