@@ -1,0 +1,27 @@
+version: "3.8"
+
+services:
+#  web:
+#    build: ./front-end
+#    ports:
+#      - 3000:3000
+  api:
+    build: ./account
+    ports:
+      - 8000:8000
+    environment:
+      DB_URL: mysqldb://db/djangodb
+  db:
+    image: mysql:8.0.28
+    container_name: db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD:
+      MYSQL_DATABASE: django_db
+      MYSQL_USER: root
+      MYSQL_PASSWORD: U$er123
+    ports:
+      - "3306:3306"
+
+volumes:
+  qt-web:
