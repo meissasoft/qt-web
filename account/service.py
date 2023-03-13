@@ -7,12 +7,12 @@ import requests
 import telnetlib
 import threading
 import subprocess
+from logger import log
 from websockets import connect
 
 
 class DjangoWebsocketService:
     def __init__(self):
-        # self.run_itgnir()
         self.tn = telnetlib.Telnet("localhost", 44444)
         self.scan = 'scan'
         self.continue_scan = 'continue'
@@ -28,17 +28,17 @@ class DjangoWebsocketService:
     def start_itgnir_network(self, path):
         try:
             subprocess.run(f'{path} network', shell=True, check=True)
-            print(f"ITGNIR has been started")
+            log.info(f"ITGNIR has been started")
         except FileNotFoundError:
-            print(f"{path} does not exist")
+            log.info(f"{path} does not exist")
         except subprocess.CalledProcessError:
-            print(f"Failed to start ITGNIR network")
+            log.info(f"Failed to start ITGNIR network")
 
     def run_itgnir(self):
         path = 'ITGNIR.lnk'
 
         if self.check_itgnir_network():
-            print("ITGNIR is already running")
+            log.info("ITGNIR is already running")
         else:
             self.start_itgnir_network(path)
 
@@ -70,9 +70,9 @@ class DjangoWebsocketService:
 
     async def receive_data(self):
         if self.websocket:
-            print("waiting for receive")
+            log.info("waiting for receive")
             message = await self.websocket.recv()
-            print("received", message)
+            log.info("received", message)
             message_data = json.loads(message)
             # Handle received message data here as necessary
             if 'is_scan_data' in message_data.keys():
@@ -104,7 +104,7 @@ class DjangoWebsocketService:
 
         original_list = data.split(':')[-1].replace('Dump', '').replace('\r', '').split('\n')[1:-1]
         converted_list = [(int(x.split(',')[0]), float(x.split(',')[1])) for x in original_list]
-        print(data)
+        log.info(data)
         with open('itgnir_data.txt', 'w') as f:
             f.write(data)
         return converted_list
@@ -121,10 +121,10 @@ class DjangoWebsocketService:
         }
         await self.send_data(request_data)
         response = await self.receive_data()
-        print(response)
+        log.info(response)
 
     async def take_scan_loop(self, data):
-        print("receive")
+        log.info("receive")
         if data['is_scan_data'] == 'yes':
             response = self.send_commands_to_itgnir()
             scan_data = {'energy_wavelength_data': response, 'token': self.token}
