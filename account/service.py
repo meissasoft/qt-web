@@ -187,7 +187,6 @@ class DjangoWebsocketService:
     def main(self):
         self.login('softech@gmail.com', '$0ftw@re123')
         # self.login('computer@gmail.com', 'C0mputer123')
-        # self.login('laptop@gmail.com', 'C0mputer123')
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
         try:
