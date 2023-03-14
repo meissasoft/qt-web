@@ -8,7 +8,7 @@ function THC({ goToPage,  graphData }) {
     <div className="maindiv background">
       <div
         style={{
-          marginTop: "80px",
+          // marginTop: "80px",
           display: "flex",
           alignItems: "center",
           flexDirection: "column",
@@ -40,7 +40,7 @@ function THC({ goToPage,  graphData }) {
               alignItems: "center",
             }}
           ></div>
-          <AreaChart
+           <AreaChart
             width={800}
             height={390}
             data={graphData}
@@ -59,11 +59,9 @@ function THC({ goToPage,  graphData }) {
               fill="url(#colorUv)"
             ></Area>
             <XAxis dataKey="time" tick={false}>
-              <Label style={{ fontSize: "130%", fill: "black" }}>
-                time
-              </Label>
+              <Label style={{ fontSize: "130%", fill: "black" }}>Time</Label>
             </XAxis>
-            <YAxis dataKey="wavelength" tick={false}>
+            <YAxis dataKey="energy" tick={false}>
               <Label
                 style={{
                   textAnchor: "middle",
@@ -71,27 +69,29 @@ function THC({ goToPage,  graphData }) {
                   fill: "black",
                 }}
                 angle={270}
-                value={"wavelength"}
+                value={"Energy"}
               />
             </YAxis>
             <Tooltip />
           </AreaChart>
-        </div>
-        <div>
           <button
             className="btn"
             style={{
               fontSize: "30px",
               fontWeight: "bold",
-              marginBottom: "150px",
+              width:"300px",
+              // marginBottom: "150px",
             }}
-            onClick={() => goToPage(5)}
+            onClick={() => goToPage(3)}
           >
             Close
           </button>
+          <button className="footer" onClick={() => goToPage(0)}>
+            {" "}
+            Go To Home
+          </button>
         </div>
       </div>
-      <button className="footer" onClick={()=>goToPage(0)}> Go To Home</button>
     </div>
   );
 }

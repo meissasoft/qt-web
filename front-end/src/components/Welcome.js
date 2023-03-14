@@ -13,8 +13,8 @@ function Welcome({goToPage}) {
     <div className="maindiv background" >
       <div >
         <h1 >
-          Welcome to Newton Insights<br /> by
-          <br /> Company-to-be-named{" "}
+          Welcome to Newton Insights<br /> <br /> by
+          <br /> <br /> Company-to-be-named{" "}
         </h1>
       </div>
     </div>

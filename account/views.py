@@ -254,7 +254,7 @@ class ItgnirDataView(APIView):
             userconnection_obj = UserConnection.objects.get(machine_name=machine_name)
             userconnection_id = userconnection_obj.id
             current_time = timezone.now()
-            time_10_mints_ago = current_time - timezone.timedelta(minutes=2880)
+            time_10_mints_ago = current_time - timezone.timedelta(minutes=10)
             scan_objects_list = ScanData.objects.filter(
                 connection_user_id=userconnection_id,
                 created_at__gte=time_10_mints_ago

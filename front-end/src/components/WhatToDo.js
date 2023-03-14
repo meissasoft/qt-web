@@ -5,7 +5,6 @@ import Live from "../assets/icons/live.png";
 import Data from "../assets/icons/data.png";
 
 function WhatToDo({ goToPage, token, graphData }) {
-  // console.log(graphData.energy)
   var b = document.getElementsByTagName("svg");
   b[0]?.setAttribute("viewBox", "60 0 880 450");
   const liveData = async () => {
@@ -23,8 +22,7 @@ function WhatToDo({ goToPage, token, graphData }) {
         }
       );
       if (resp.data && resp.status === 201) {
-        // console.log("response is:", resp);
-        goToPage(4);
+        goToPage(5);
       }
     } catch (err) {
       console.log("error while login", err);
@@ -35,9 +33,10 @@ function WhatToDo({ goToPage, token, graphData }) {
     <div className="maindiv background">
       <div
         style={{
-          marginTop: "80px",
+          // marginTop: "80px",
           display: "flex",
           alignItems: "center",
+          justifyContent:"center",
           flexDirection: "column",
           height: "90%",
         }}
@@ -58,7 +57,7 @@ function WhatToDo({ goToPage, token, graphData }) {
             <br />
             Start Live Data
           </button>
-          <button className="btn" onClick={liveData} style={{}}>
+          <button className="btn" onClick={()=>goToPage(4)} style={{}}>
             <img src={Data} alt="" width={30} />
             <br />
             Show Old Data
@@ -81,9 +80,9 @@ function WhatToDo({ goToPage, token, graphData }) {
               alignItems: "center",
             }}
           ></div>
-          <AreaChart
+          {/* <AreaChart
             width={800}
-            height={390}
+            height={350}
             data={graphData}
             margin={{ top: 5, right: 20, bottom: 5, left: 0 }}
           >
@@ -114,7 +113,7 @@ function WhatToDo({ goToPage, token, graphData }) {
               />
             </YAxis>
             <Tooltip />
-          </AreaChart>
+          </AreaChart> */}
           <button className="footer" onClick={() => goToPage(0)}>
             {" "}
             Go To Home
