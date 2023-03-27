@@ -17,7 +17,7 @@ from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.response import Response
 from rest_framework import status
 from django.shortcuts import render
-from account.models import User, UserConnection
+from account.models import User, UserConnection, Scan, ScanData
 from rest_framework.views import APIView
 from machine_learning import *
 
@@ -188,8 +188,11 @@ class IsScanView(CreateAPIView):
                 return Response({f'Error': 'invalid payload'}, status=status.HTTP_400_BAD_REQUEST)
             is_scan = dict(request.data)['is_scan'][0]
             if is_scan == 'yes':
+                scan_instance = Scan.objects.create()
                 user_id = request.user.id
-                async_to_sync(send_and_receive)(request_data={'is_scan_data': 'yes', 'user_id': user_id})
+                scan_id = str(scan_instance.scan_id)
+                async_to_sync(send_and_receive)(
+                    request_data={'is_scan_data': 'yes', 'user_id': user_id, 'scan_id': scan_id})
                 return Response({'message': 'data Scanning is in progress'}, status=status.HTTP_201_CREATED)
             else:
                 return Response({'Error': 'select is_scan yes for scanning the data'},

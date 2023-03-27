@@ -1,3 +1,5 @@
+import uuid
+
 from django.db import models
 from django.contrib.auth.models import BaseUserManager, AbstractBaseUser
 
@@ -88,8 +90,16 @@ class UserConnection(models.Model):
     last_status = models.DateTimeField(auto_now=True)
 
 
+class Scan(models.Model):
+    scan_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    predict_value = models.FloatField(null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
 class ScanData(models.Model):
     connection_user = models.ForeignKey(UserConnection, on_delete=models.CASCADE)
     energy = models.FloatField()
     wavelength = models.FloatField()
     created_at = models.DateTimeField(auto_now_add=True)
+    scan_id = models.ForeignKey(Scan, on_delete=models.CASCADE, related_name='scandata_set', db_column='scan_id',
+                                default=None)
