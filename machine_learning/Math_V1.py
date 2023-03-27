@@ -29,6 +29,25 @@ class DataProcessor:
         cursor.close()
         return db_rows
 
+    def sample_data(self, db_rows):
+        data = [(int(row[2]), row[1]) for row in db_rows]
+        column_names = ['Sample'] + [i[0] for i in data[:700]]
+        n = len(db_rows)
+        step = 700
+        start = 0
+        filters = []
+        while start < n:
+            end = min(start + step, n)
+            filters.append((start, end))
+            start = end
+        rows = [
+            [count] + [i[1] for i in data[i:j]]
+            for count, (i, j) in enumerate(filters, start=1)
+        ]
+        df = pd.DataFrame(rows, columns=column_names)
+        latest_sample = list(df.iloc[-1, :].values)
+        return [latest_sample[1:]]
+
     def preprocess_data(self, db_rows):
         data = [(int(row[2]), row[1]) for row in db_rows]
         column_names = ['Sample'] + [i[0] for i in data[:700]]
@@ -74,10 +93,10 @@ class ModelTrainer:
         return grid, train_score
 
     def save_model(self, grid):
-        joblib.dump(grid, 'gs_object.pkl')
+        joblib.dump(grid, r'C:\Users\saad\Desktop\qt-web\machine_learning\gs_object.pkl')
 
     def load_model(self):
-        return joblib.load("gs_object.pkl")
+        return joblib.load(r"C:\Users\saad\Desktop\qt-web\machine_learning\gs_object.pkl")
 
 
 if __name__ == '__main__':
@@ -90,7 +109,7 @@ if __name__ == '__main__':
     db_rows = data_processor.retrieve_data(cursor)
 
     # preprocess data
-    X_train_scaled, y_train, X_test_scaled, y_test = data_processor.preprocess_data(db_rows)
+    X_train_scaled, y_train, X_test_scaled,   = data_processor.preprocess_data(db_rows)
 
     # close database connection
     cnx.close()

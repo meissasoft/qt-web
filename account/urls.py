@@ -1,7 +1,7 @@
 from django.urls import path
 from account.views import UserRegistrationView, UserLoginView, UserProfileView, UserChangePasswordView, \
     SendPasswordResetEmailView, UserPasswordResetView, UpdateRegisterUserView, lobby, ScanDataView, UserConnectionView, \
-    IsScanView, SysInfoView, ItgnirDataView
+    IsScanView, SysInfoView, ItgnirDataView, predict
 
 urlpatterns = [
     path('register/', UserRegistrationView.as_view(), name='register'),
@@ -16,5 +16,6 @@ urlpatterns = [
     path('user-connection/', UserConnectionView.as_view(), name='user-connection'),
     path('sys-info/', SysInfoView.as_view(), name='sys-info'),
     path('itgnir-data/', ItgnirDataView.as_view(), name='itgnir-data'),
+    path('predictions/', predict, name='predictions'),
     path('lobby/', lobby, name='lobby'),
 ]

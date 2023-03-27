@@ -19,8 +19,10 @@ from rest_framework import status
 from django.shortcuts import render
 from account.models import User, UserConnection
 from rest_framework.views import APIView
+from machine_learning import *
 
 from account.models import ScanData
+from django.views.decorators.http import require_http_methods
 from account.serializers import SendPasswordResetEmailSerializer, UserChangePasswordSerializer, UserLoginSerializer, \
     UserPasswordResetSerializer, UserProfileSerializer, UserRegistrationSerializer, UpdateRegisterUserSerializer, \
     UserConnectionSerializer, IsScanSerializer, ScanDataSerializer, SysInfoSerializer, ItgnirSerializer
@@ -276,3 +278,40 @@ class ItgnirDataView(APIView):
         except Exception as e:
 
             return Response({f'Error: {e}'}, status=status.HTTP_400_BAD_REQUEST)
+
+
+@require_http_methods(['GET'])
+def predict(request):
+    try:
+        # create instance of DataProcessor class
+        data_processor = DataProcessor(username='root', password='U$er123',
+                                       host='localhost', database='djangodb')
+
+        # connect to database and retrieve data
+        cnx, cursor = data_processor.connect_to_database()
+        db_rows = data_processor.retrieve_data(cursor)
+
+        # preprocess data
+        latest_sample = data_processor.sample_data(db_rows)
+
+        # close database connection
+        cnx.close()
+
+        # create instance of ModelTrainer class
+        model_trainer = ModelTrainer(X_train_scaled=None, y_train=None)
+
+        # load the pre-trained model
+        loaded_grid = model_trainer.load_model()
+
+        # make predictions
+        pred = loaded_grid.predict(latest_sample)[0]
+
+        # format predictions as a JSON response
+        response_data = {
+            'message': 'Successfully getting the prediction',
+            'predictions': pred.tolist()
+        }
+        return JsonResponse(response_data, status=status.HTTP_200_OK)
+
+    except Exception as e:
+        return Response({f'Error: {e}'}, status=status.HTTP_400_BAD_REQUEST)
