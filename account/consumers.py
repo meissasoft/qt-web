@@ -20,8 +20,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
     async def get_user_id_from_token(self, token):
         try:
             access_token = AccessToken(token)
-            user_id = access_token['user_id']
-            return user_id
+            return access_token['user_id']
         except Exception as e:
             # Handle invalid token
             raise Exception('Error: {e}')
@@ -39,8 +38,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
             del text_data_json['token']
             headers = {'Authorization': f'Bearer {bearer_token}'} if bearer_token else {}
             async with aiohttp.ClientSession() as session:
-                async with session.post(ngrok_url + '/api/user/user-connection/',
-                                        data=text_data_json,
+                async with session.post(f'{ngrok_url}/api/user/user-connection/', data=text_data_json,
                                         headers=headers) as resp:
                     # Do something with the response, like sending it back to the WebSocket client
                     response = {'message': 'user connection created successfully'}
@@ -50,15 +48,24 @@ class ChatConsumer(AsyncWebsocketConsumer):
         elif 'energy_wavelength_data' in text_data_json:
             print("energy_wavelength_data")
             bearer_token = text_data_json.get('token')
+            scan_id = text_data_json.get('scan_id')
             user_id = await self.get_user_id_from_token(bearer_token)
             original_list = text_data_json['energy_wavelength_data']
-            new_list = [(item[0], item[1]) for item in original_list]
-            request_data = {'energy_wavelength_data': new_list, 'machine_name': f'{[machine_name]}'}
+            # Split the string by newline character to get a list of lines
+            lines = original_list.split('\n')
+            # Extract the lines that contain data (i.e. lines that start with a number)
+            data_lines = [line for line in lines if line and line[0].isdigit()]
+            # Split each data line into a tuple of two elements
+            data_tuples = [tuple(line.split(',')) for line in data_lines]
+            # Convert the second element of each tuple to a float
+            data_tuples = [(int(t[0]), float(t[1])) for t in data_tuples]
+            # The resulting list of tuples is what you need
+            new_list = data_tuples
+            request_data = {'energy_wavelength_data': new_list, 'machine_name': f'{[machine_name]}',
+                            'scan_id': f'{scan_id}'}
             headers = {'Authorization': f'Bearer {bearer_token}'} if bearer_token else {}
             async with aiohttp.ClientSession() as session:
-                async with session.post(ngrok_url + '/api/user/scan-data/',
-                                        data=request_data,
-                                        headers=headers) as resp:
+                async with session.post(f'{ngrok_url}/api/user/scan-data/', data=request_data, headers=headers) as resp:
                     # Do something with the response, like sending it back to the WebSocket client
                     response = {'message': 'data scanned successfully'}
                     # send message to server
@@ -71,8 +78,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
             text_data_json['machine_name'] = f'{[machine_name]}'
             headers = {'Authorization': f'Bearer {bearer_token}'} if bearer_token else {}
             async with aiohttp.ClientSession() as session:
-                async with session.put(ngrok_url + '/api/user/user-connection/',
-                                       data=text_data_json,
+                async with session.put(f'{ngrok_url}/api/user/user-connection/', data=text_data_json,
                                        headers=headers) as resp:
                     # Do something with the response, like sending it back to the WebSocket client
                     response = {'message': 'user connection updated successfully'}
