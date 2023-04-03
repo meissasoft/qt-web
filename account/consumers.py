@@ -67,6 +67,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         elif 'is_connection_alive' in text_data_json:
             bearer_token = text_data_json.get('token')
             user_id = await self.get_user_id_from_token(bearer_token)
+            text_data_json['user_id'] = user_id
             del text_data_json['token']
             text_data_json['machine_name'] = f'{[machine_name]}'
             headers = {'Authorization': f'Bearer {bearer_token}'} if bearer_token else {}
