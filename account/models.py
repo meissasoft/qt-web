@@ -97,9 +97,8 @@ class Scan(models.Model):
 
 
 class ScanData(models.Model):
-    connection_user = models.ForeignKey(UserConnection, on_delete=models.CASCADE)
+    user_connection = models.ForeignKey(UserConnection, on_delete=models.CASCADE, related_name='user_connection')
+    scan_connection = models.ForeignKey(Scan, on_delete=models.CASCADE,  related_name='scan_connection')
     energy = models.FloatField()
     wavelength = models.FloatField()
     created_at = models.DateTimeField(auto_now_add=True)
-    scan_id = models.ForeignKey(Scan, on_delete=models.CASCADE, related_name='scandata_set', db_column='scan_id',
-                                default=None)

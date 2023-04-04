@@ -1,7 +1,9 @@
 import asyncio
 import json
+import os
 import time
 
+import requests
 import websockets
 from datetime import datetime
 
@@ -210,16 +212,61 @@ class ScanDataView(APIView):
 
     def post(self, request, format=None, **kwargs):
         machine_name = request.data['machine_name']
-        user_connection_obj = UserConnection.objects.get(machine_name=machine_name)
-        request_data = {'connection_user': user_connection_obj}
+        user_id = request.data['user_id']
+        scan_id = request.data['scan_id']
+        token = request.data['token']
+        headers = {'Authorization': f'Bearer {token}'}
+        user_connection_obj = UserConnection.objects.get(machine_name=machine_name, user_id=user_id)
+        scan_obj = Scan.objects.get(scan_id=scan_id)
         energy_wavelength_data = request.data.getlist('energy_wavelength_data')
-        energy_wavelength_list = [eval(data) for data in energy_wavelength_data]
-        for energy, wavelength in energy_wavelength_list:
-            request_data['energy'] = energy
-            request_data['wavelength'] = wavelength
-            ScanData.objects.create(**request_data)
-        print('Data Scanned Successfully')
-        return Response({'msg': 'Data Scanned Successfully'}, status=status.HTTP_201_CREATED)
+        scan_data_list = []
+        for data in energy_wavelength_data:
+            energy, wavelength = eval(data)
+            scan_data_list.append(
+                ScanData(
+                    user_connection=user_connection_obj,
+                    scan_connection=scan_obj,
+                    energy=energy,
+                    wavelength=wavelength
+                )
+            )
+        ScanData.objects.bulk_create(scan_data_list)
+
+        try:
+            # create instance of DataProcessor class
+            data_processor = DataProcessor(username='root', password='U$er123',
+                                           host='localhost', database='qtdb')
+
+            # connect to database and retrieve data
+            cnx, cursor = data_processor.connect_to_database()
+            db_rows = data_processor.retrieve_data_for_prediction(cursor, scan_id)
+
+            # preprocess data
+            latest_sample = data_processor.sample_data(db_rows)
+
+            # close database connection
+            cnx.close()
+
+            # create instance of ModelTrainer class
+            model_trainer = ModelTrainer(X_train_scaled=None, y_train=None)
+
+            # load the pre-trained model
+            loaded_grid = model_trainer.load_model()
+
+            # make predictions
+            pred = loaded_grid.predict(latest_sample)[0]
+
+            print('Successfully getting the prediction')
+
+            scan_instance = Scan.objects.get(scan_id=scan_id)
+            scan_instance.predict_value = pred
+            scan_instance.save()
+
+            print('Data Scanned Successfully')
+            return Response({'msg': 'Data Scanned Successfully'}, status=status.HTTP_201_CREATED)
+
+        except Exception as e:
+            return Response({f'Error: {e}'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class SysInfoView(APIView):
@@ -262,7 +309,7 @@ class ItgnirDataView(APIView):
             current_time = timezone.now()
             time_10_mints_ago = current_time - timezone.timedelta(minutes=10)
             scan_objects_list = ScanData.objects.filter(
-                connection_user_id=userconnection_id,
+                user_connection_id=userconnection_id,
                 created_at__gte=time_10_mints_ago
             )
             itgnir_data = []
@@ -289,7 +336,7 @@ def predict(request):
     try:
         # create instance of DataProcessor class
         data_processor = DataProcessor(username='root', password='U$er123',
-                                       host='localhost', database='djangodb')
+                                       host='localhost', database='qtdb')
 
         # connect to database and retrieve data
         cnx, cursor = data_processor.connect_to_database()

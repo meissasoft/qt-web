@@ -29,6 +29,13 @@ class DataProcessor:
         cursor.close()
         return db_rows
 
+    def retrieve_data_for_prediction(self, cursor, scan_id):
+        query = f"SELECT * FROM account_scandata WHERE scan_connection_id={scan_id}"
+        cursor.execute(query)
+        db_rows = cursor.fetchall()
+        cursor.close()
+        return db_rows
+
     def sample_data(self, db_rows):
         data = [(int(row[2]), row[1]) for row in db_rows]
         column_names = ['Sample'] + [i[0] for i in data[:700]]
@@ -41,7 +48,7 @@ class DataProcessor:
             filters.append((start, end))
             start = end
         rows = [
-            [count] + [i[1] for i in data[i:j]]
+            [count] + [i[0] for i in data[i:j]]
             for count, (i, j) in enumerate(filters, start=1)
         ]
         df = pd.DataFrame(rows, columns=column_names)
@@ -109,7 +116,7 @@ if __name__ == '__main__':
     db_rows = data_processor.retrieve_data(cursor)
 
     # preprocess data
-    X_train_scaled, y_train, X_test_scaled,   = data_processor.preprocess_data(db_rows)
+    X_train_scaled, y_train, X_test_scaled, = data_processor.preprocess_data(db_rows)
 
     # close database connection
     cnx.close()
