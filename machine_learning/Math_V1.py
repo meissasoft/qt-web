@@ -30,7 +30,7 @@ class DataProcessor:
         return db_rows
 
     def retrieve_data_for_prediction(self, cursor, scan_id):
-        query = f"SELECT * FROM account_scandata WHERE scan_connection_id={scan_id}"
+        query = f"SELECT * FROM account_scandata WHERE scan_connection_id='{scan_id}'"
         cursor.execute(query)
         db_rows = cursor.fetchall()
         cursor.close()
@@ -104,31 +104,3 @@ class ModelTrainer:
 
     def load_model(self):
         return joblib.load(r"C:\Users\saad\Desktop\qt-web\machine_learning\gs_object.pkl")
-
-
-if __name__ == '__main__':
-    # create instance of DataProcessor class
-    data_processor = DataProcessor(username='root', password='U$er123',
-                                   host='localhost', database='djangodb')
-
-    # connect to database and retrieve data
-    cnx, cursor = data_processor.connect_to_database()
-    db_rows = data_processor.retrieve_data(cursor)
-
-    # preprocess data
-    X_train_scaled, y_train, X_test_scaled, = data_processor.preprocess_data(db_rows)
-
-    # close database connection
-    cnx.close()
-
-    # create instance of ModelTrainer class
-    model_trainer = ModelTrainer(X_train_scaled=X_train_scaled, y_train=y_train)
-
-    # train the model
-    grid, train_score = model_trainer.train_model()
-
-    # save the model
-    model_trainer.save_model(grid)
-
-    # load the model
-    loaded_grid = model_trainer.load_model()

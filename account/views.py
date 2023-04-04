@@ -27,7 +27,8 @@ from account.models import ScanData
 from django.views.decorators.http import require_http_methods
 from account.serializers import SendPasswordResetEmailSerializer, UserChangePasswordSerializer, UserLoginSerializer, \
     UserPasswordResetSerializer, UserProfileSerializer, UserRegistrationSerializer, UpdateRegisterUserSerializer, \
-    UserConnectionSerializer, IsScanSerializer, ScanDataSerializer, SysInfoSerializer, ItgnirSerializer
+    UserConnectionSerializer, IsScanSerializer, ScanDataSerializer, SysInfoSerializer, ItgnirSerializer, \
+    PredictSerializer, ModelTrainingSerializer
 from django.contrib.auth import authenticate
 from account.renderers import UserRenderer
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -175,7 +176,7 @@ async def send_and_receive(request_data):
         from .consumers import connections
         await connections[user_id].receive(json.dumps(request_data))
     except Exception as e:
-        return Response({f'Error: {e}'}, status=status.HTTP_400_BAD_REQUEST)
+        return print({f'Error: {e}'})
 
 
 class IsScanView(CreateAPIView):
@@ -214,8 +215,7 @@ class ScanDataView(APIView):
         machine_name = request.data['machine_name']
         user_id = request.data['user_id']
         scan_id = request.data['scan_id']
-        token = request.data['token']
-        headers = {'Authorization': f'Bearer {token}'}
+        new_scan_id = scan_id.replace("-", "").replace("_", "")
         user_connection_obj = UserConnection.objects.get(machine_name=machine_name, user_id=user_id)
         scan_obj = Scan.objects.get(scan_id=scan_id)
         energy_wavelength_data = request.data.getlist('energy_wavelength_data')
@@ -239,7 +239,7 @@ class ScanDataView(APIView):
 
             # connect to database and retrieve data
             cnx, cursor = data_processor.connect_to_database()
-            db_rows = data_processor.retrieve_data_for_prediction(cursor, scan_id)
+            db_rows = data_processor.retrieve_data_for_prediction(cursor, new_scan_id)
 
             # preprocess data
             latest_sample = data_processor.sample_data(db_rows)
@@ -331,38 +331,70 @@ class ItgnirDataView(APIView):
             return Response({f'Error: {e}'}, status=status.HTTP_400_BAD_REQUEST)
 
 
-@require_http_methods(['GET'])
-def predict(request):
-    try:
-        # create instance of DataProcessor class
-        data_processor = DataProcessor(username='root', password='U$er123',
-                                       host='localhost', database='qtdb')
+class PredictView(APIView):
+    permission_classes = [IsAuthenticated]
+    renderer_classes = [UserRenderer]
+    serializer_class = PredictSerializer
 
-        # connect to database and retrieve data
-        cnx, cursor = data_processor.connect_to_database()
-        db_rows = data_processor.retrieve_data(cursor)
+    def post(self, request, format=None):
+        try:
+            scan_id = request.data['scan_id']
+            scan_instance = Scan.objects.get(scan_id=scan_id)
+            predict_value = scan_instance.predict_value
+            if not predict_value:
+                message = {
+                    'message': 'Prediction is in progress',
+                }
+                return Response(message, status=status.HTTP_200_OK)
+            message = {
+                'message': 'Prediction completed successfully',
+                'predict_value': predict_value
+            }
+            return Response(message, status=status.HTTP_201_CREATED)
+        except Exception as e:
+            error_message = f'{",".join(e)}'
+            return Response({'Error': error_message}, status=status.HTTP_400_BAD_REQUEST)
 
-        # preprocess data
-        latest_sample = data_processor.sample_data(db_rows)
 
-        # close database connection
-        cnx.close()
+class ModelTrainingView(APIView):
+    permission_classes = [IsAuthenticated]
+    renderer_classes = [UserRenderer]
+    serializer_class = ModelTrainingSerializer
 
-        # create instance of ModelTrainer class
-        model_trainer = ModelTrainer(X_train_scaled=None, y_train=None)
+    def get(self, request, format=None):
+        try:
+            # create instance of DataProcessor class
+            data_processor = DataProcessor(username='root', password='U$er123',
+                                           host='localhost', database='qtdb')
 
-        # load the pre-trained model
-        loaded_grid = model_trainer.load_model()
+            # connect to database and retrieve data
+            cnx, cursor = data_processor.connect_to_database()
+            db_rows = data_processor.retrieve_data(cursor)
 
-        # make predictions
-        pred = loaded_grid.predict(latest_sample)[0]
+            # preprocess data
+            X_train_scaled, y_train, X_test_scaled, = data_processor.preprocess_data(db_rows)
 
-        # format predictions as a JSON response
-        response_data = {
-            'message': 'Successfully getting the prediction',
-            'predictions': pred.tolist()
-        }
-        return JsonResponse(response_data, status=status.HTTP_200_OK)
+            # close database connection
+            cnx.close()
 
-    except Exception as e:
-        return Response({f'Error: {e}'}, status=status.HTTP_400_BAD_REQUEST)
+            # create instance of ModelTrainer class
+            model_trainer = ModelTrainer(X_train_scaled=X_train_scaled, y_train=y_train)
+
+            # train the model
+            grid, train_score = model_trainer.train_model()
+
+            # save the model
+            model_trainer.save_model(grid)
+
+            # load the model
+            model_trainer.load_model()
+
+            # format predictions as a JSON response
+            response_data = {
+                'message': 'Successfully trained the SVR model and saved it as gs_object.pkl file'
+            }
+            return JsonResponse(response_data, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            error_message = str(e)
+            return Response({'Error': error_message}, status=status.HTTP_400_BAD_REQUEST)

@@ -2,7 +2,7 @@ from datetime import datetime
 
 from .client import Client
 from rest_framework import serializers
-from account.models import User, ScanData, UserConnection
+from account.models import User, ScanData, UserConnection, Scan
 from django.utils.encoding import smart_str, force_bytes, DjangoUnicodeDecodeError
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
@@ -45,6 +45,12 @@ class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['id', 'email', 'name']
+
+
+class PredictSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Scan
+        fields = ['scan_id', 'predict_value', 'created_at']
 
 
 class UserChangePasswordSerializer(serializers.Serializer):
@@ -199,4 +205,8 @@ class SysInfoSerializer(serializers.ModelSerializer):
 
 
 class ItgnirSerializer(serializers.ModelSerializer):
+    pass
+
+
+class ModelTrainingSerializer(serializers.ModelSerializer):
     pass
