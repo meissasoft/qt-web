@@ -176,6 +176,7 @@ async def send_and_receive(request_data):
         from .consumers import connections
         await connections[user_id].receive(json.dumps(request_data))
     except Exception as e:
+        print("error", e)
         return print({f'Error: {e}'})
 
 
@@ -202,6 +203,7 @@ class IsScanView(CreateAPIView):
                 return Response({'Error': 'select is_scan yes for scanning the data'},
                                 status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
+            print("error", e)
             return Response({f'Error: {e}'}, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -266,6 +268,7 @@ class ScanDataView(APIView):
             return Response({'msg': 'Data Scanned Successfully'}, status=status.HTTP_201_CREATED)
 
         except Exception as e:
+            print("error", e)
             return Response({f'Error: {e}'}, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -291,6 +294,7 @@ class SysInfoView(APIView):
             }
             return Response(message, status=status.HTTP_200_OK)
         except Exception as e:
+            print("error", e)
             return Response({f'Error: {e}'}, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -327,7 +331,7 @@ class ItgnirDataView(APIView):
             }
             return Response(message, status=status.HTTP_200_OK)
         except Exception as e:
-
+            print("error", e)
             return Response({f'Error: {e}'}, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -352,6 +356,7 @@ class PredictView(APIView):
             }
             return Response(message, status=status.HTTP_201_CREATED)
         except Exception as e:
+            print("error", e)
             error_message = f'{",".join(e)}'
             return Response({'Error': error_message}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -396,5 +401,6 @@ class ModelTrainingView(APIView):
             return JsonResponse(response_data, status=status.HTTP_200_OK)
 
         except Exception as e:
+            print("error", e)
             error_message = str(e)
             return Response({'Error': error_message}, status=status.HTTP_400_BAD_REQUEST)
