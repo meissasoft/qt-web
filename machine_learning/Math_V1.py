@@ -1,3 +1,4 @@
+import scipy
 import joblib
 import numpy as np
 import pandas as pd
@@ -104,3 +105,31 @@ class ModelTrainer:
 
     def load_model(self):
         return joblib.load(r"C:\Users\saad\Desktop\qt-web\machine_learning\gs_object.pkl")
+
+
+class SavGolFilter:
+    def __init__(self, unprocessed_energy_data):
+        # self.d = pd.read_excel('Example_Data_Processing_May7.xlsx', sheet_name='Unprocessed data', nrows=26, skiprows=1)
+        self.d = unprocessed_energy_data
+        self.bv = pd.read_excel('Example_Data_Processing_May7.xlsx', sheet_name='B vectors')
+        self.weights = self.bv.drop(['Factor ', ' B0'], axis=1).iloc[0].values
+        self.bias = self.bv[' B0'].iloc[0]
+        self.sav_gol_window_arg = 15
+
+    def get_prediction(self, vals):
+        x1 = scipy.signal.savgol_filter(vals, window_length=self.sav_gol_window_arg, polyorder=3, deriv=1,
+                                        mode='constant')
+        window = int((self.sav_gol_window_arg - 1) / 2)
+        return np.dot(x1[window:(-1 * window)], self.weights) + self.bias
+
+    def process_data(self):
+        # Generate the list of tuples using a list comprehension
+        tuples_list = [(1100 + i * 2, self.d[i]) for i in range(len(self.d))]
+
+        # Convert the list of tuples to a DataFrame
+        df = pd.DataFrame(tuples_list, columns=['A', 'B'])
+
+        # Convert the DataFrame to a Series
+        vals = pd.Series(df['B'].values, index=df['A'])
+
+        return self.get_prediction(vals)
