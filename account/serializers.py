@@ -192,6 +192,12 @@ class UserConnectionSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(e)
 
 
+class PredictSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Scan
+        fields = ('predict_value',)
+
+
 class IsScanSerializer(serializers.Serializer):
     pass
 

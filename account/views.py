@@ -75,7 +75,7 @@ class UserLoginView(CreateAPIView):
             return Response({'token': token, 'msg': 'Login Success'}, status=status.HTTP_200_OK)
         else:
             return Response({'errors': {'non_field_errors': ['Email or Password is not Valid']}},
-                            status=status.HTTP_404_NOT_FOUND)
+                            status=status.HTTP_400_BAD_REQUEST)
 
 
 class UserProfileView(APIView):
@@ -197,13 +197,50 @@ class IsScanView(CreateAPIView):
                 scan_id = str(scan_instance.scan_id)
                 async_to_sync(send_and_receive)(
                     request_data={'is_scan_data': 'yes', 'user_id': user_id, 'scan_id': scan_id})
-                return Response({'message': 'data Scanning is in progress'}, status=status.HTTP_201_CREATED)
+                return Response({'message': 'data Scanning is in progress', 'scan_id': scan_id},
+                                status=status.HTTP_201_CREATED)
             else:
                 return Response({'Error': 'select is_scan yes for scanning the data'},
                                 status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
             print("error", e)
             return Response({f'Error: {e}'}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class ScanAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    renderer_classes = [UserRenderer]
+    serializer_class = ScanDataSerializer
+    parser_classes = [MultiPartParser, FormParser]
+
+    def post(self, request):
+        scan_id = request.data.get('scan_id')
+        try:
+            scan = Scan.objects.get(scan_id=scan_id)
+            predict_value = scan.predict_value
+            return Response({'predict_value': predict_value}, status=status.HTTP_200_OK)
+        except Scan.DoesNotExist:
+            return Response({'error': 'Invalid scan id '}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class LastTenPredictionView(APIView):
+    permission_classes = [IsAuthenticated]
+    renderer_classes = [UserRenderer]
+    serializer_class = PredictSerializer
+
+    def get(self, request):
+        # Retrieve the last 10 records
+        last_10_scans = Scan.objects.order_by('-created_at')[:10]
+
+        if len(last_10_scans) >= 10:
+            # If 10 records are present, return predict_value values based on created_at
+            predict_values = [scan.predict_value for scan in last_10_scans]
+        else:
+            # If fewer than 10 records are present, return predict_value of all records
+            predict_values = [scan.predict_value for scan in Scan.objects.all()]
+
+        return Response({'predict_values': predict_values, 'msg': 'last 10 predicted values of scan'},
+                        status=status.HTTP_200_OK)
 
 
 class ScanDataView(APIView):

@@ -1,7 +1,7 @@
 from django.urls import path
 from account.views import UserRegistrationView, UserLoginView, UserProfileView, UserChangePasswordView, \
     SendPasswordResetEmailView, UserPasswordResetView, UpdateRegisterUserView, lobby, ScanDataView, UserConnectionView, \
-    IsScanView, SysInfoView, ItgnirDataView, ModelTrainingView, PredictView, ModelTrainingView
+    IsScanView, SysInfoView, ItgnirDataView, ModelTrainingView, PredictView, ModelTrainingView, ScanAPIView, LastTenPredictionView
 
 urlpatterns = [
     path('register/', UserRegistrationView.as_view(), name='register'),
@@ -12,6 +12,8 @@ urlpatterns = [
     path('send-reset-password-email/', SendPasswordResetEmailView.as_view(), name='send-reset-password-email'),
     path('reset-password/<uid>/<token>/', UserPasswordResetView.as_view(), name='reset-password'),
     path('scan-data/', ScanDataView.as_view(), name='scan-data'),
+    path('check-predict-status/', ScanAPIView.as_view(), name='check-predict-status'),
+    path('last-ten-predict/', LastTenPredictionView.as_view(), name='last-ten-scans'),
     path('is-scan/', IsScanView.as_view(), name='is-scan'),
     path('user-connection/', UserConnectionView.as_view(), name='user-connection'),
     path('sys-info/', SysInfoView.as_view(), name='sys-info'),
