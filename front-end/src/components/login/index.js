@@ -54,7 +54,16 @@ function Login({ goToPage, setToken }) {
         goToPage(14);
       }
     } catch (error) {
-      console.log("error while login", error);
+      if (
+        error && error.response &&
+           error.response.status === 400
+      ){
+        setErrors({
+          ...errors,
+          serverError: "Invalid Email or password",
+        });
+        return
+      }
       if (
         error &&
         error.response &&
@@ -67,7 +76,6 @@ function Login({ goToPage, setToken }) {
         });
         return;
       }
-      setErrors({ ...errors, serverError: error.message });
     }
   };
 
@@ -112,7 +120,7 @@ function Login({ goToPage, setToken }) {
               </span>
             )}
             {errors["serverError"].length > 0 && (
-              <span style={{ color: "red", fontSize: 13 }}>
+              <span style={{ color: "red", paddingTop:10, fontSize: 13 }}>
                 {errors["serverError"]}
               </span>
             )}

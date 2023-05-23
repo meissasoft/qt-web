@@ -4,7 +4,7 @@ import { AreaChart, Area, Tooltip, XAxis, YAxis, Label } from "recharts";
 import Live from "../assets/icons/live.png";
 import Data from "../assets/icons/data.png";
 
-function WhatToDo({ goToPage, token, graphData }) {
+function WhatToDo({ goToPage, token, graphData, setScanId }) {
   var b = document.getElementsByTagName("svg");
   b[0]?.setAttribute("viewBox", "60 0 880 450");
   const liveData = async () => {
@@ -21,7 +21,8 @@ function WhatToDo({ goToPage, token, graphData }) {
           },
         }
       );
-      if (resp.data && resp.status === 201) {
+      if (resp.data && resp.status === 201 && resp.data.scan_id) {
+        setScanId(resp.data.scan_id)
         goToPage(5);
       }
     } catch (err) {
