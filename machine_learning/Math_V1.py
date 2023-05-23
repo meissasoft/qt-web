@@ -110,7 +110,9 @@ class ModelTrainer:
 class SavGolFilter:
     def __init__(self, unprocessed_energy_data):
         self.d = unprocessed_energy_data
-        self.bv = pd.read_excel('Example_Data_Processing_May7.xlsx', sheet_name='B vectors')
+        self.bv = pd.read_excel(
+            r'C:\Users\Abdul\Desktop\qt-web\machine_learning\Example_Data_Processing_May7.xlsx',
+            sheet_name='B vectors')
         self.weights = self.bv.drop(['Factor ', ' B0'], axis=1).iloc[0].values
         self.bias = self.bv[' B0'].iloc[0]
         self.sav_gol_window_arg = 15
