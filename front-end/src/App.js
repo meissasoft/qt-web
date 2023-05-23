@@ -19,6 +19,7 @@ import Welcome from "./components/Welcome";
 function App() {
   const [page, setPage] = useState(0);
   const [token, setToken] = useState("");
+  const [scanId, setScanId] = useState("");
   const [graphData, setGraphData] = useState([]);
 
   const goToPage = useCallback((pageNumber) => {
@@ -38,9 +39,9 @@ function App() {
     0: <Intro goToPage={goToPage} />,
     1: <Login goToPage={goToPage} setToken={setToken} />,
     2: <Signup goToPage={goToPage} setToken={setToken} />,
-    3: <WhatToDo goToPage={goToPage} token={token} graphData={graphData} />,
+    3: <WhatToDo goToPage={goToPage} token={token} graphData={graphData} setScanId={setScanId}/>,
     4: <THC goToPage={goToPage} graphData={graphData} />,
-    5: <Reference goToPage={goToPage} />,
+    5: <Reference goToPage={goToPage} token={token} scanId={scanId} />,
     6: <Ensure goToPage={goToPage} />,
     7: <RefSuccess goToPage={goToPage} />,
     8: <SaveInfo goToPage={goToPage} />,

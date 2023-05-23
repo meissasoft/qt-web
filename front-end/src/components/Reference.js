@@ -1,10 +1,46 @@
 import React from "react";
 import "./components.css";
+import axios from "axios";
+import { REACT_APP_API_URL } from './utils'
 // import Live from "../assets/icons/live.png";
 // import Data from "../assets/icons/data.png";
-function Reference({ goToPage }) {
+function Reference({ goToPage ,token, scanId}) {
+  const Spinner = () => <div className="loader"></div>;
+  const [loader, setLoader] = React.useState(true)
+
+  const getStatus = async () => {
+    try {
+      const resp = await axios.post(
+        REACT_APP_API_URL + "/user/check-predict-status/",
+        { scan_id: scanId },
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: "Bearer " + token,
+          },
+        }
+      );
+      if(resp && resp.data && resp.data.predict_value
+        ){
+          setLoader(false)
+        }
+        else{
+          setTimeout(() =>{
+            getStatus()
+          },5000)
+
+        }
+    } catch (err) {
+      console.log("error while getMachineData", err);
+    }
+  };
+  React.useEffect(() =>{
+    getStatus()
+  },[])
   return (
     <div className="maindiv background">
+     {loader ? <Spinner/> : 
+     <>
       <div
         style={{
           display: "flex",
@@ -61,6 +97,8 @@ function Reference({ goToPage }) {
         </div>
       </div>
       <button className="footer" onClick={()=>goToPage(0)}> Go To Home</button>
+     </>
+     }
     </div>
   );
 }
