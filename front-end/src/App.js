@@ -40,7 +40,7 @@ function App() {
     1: <Login goToPage={goToPage} setToken={setToken} />,
     2: <Signup goToPage={goToPage} setToken={setToken} />,
     3: <WhatToDo goToPage={goToPage} token={token} graphData={graphData} setScanId={setScanId}/>,
-    4: <THC goToPage={goToPage} graphData={graphData} />,
+    4: <THC goToPage={goToPage} graphData={graphData}  token={token}/>,
     5: <Reference goToPage={goToPage} token={token} scanId={scanId} />,
     6: <Ensure goToPage={goToPage} />,
     7: <RefSuccess goToPage={goToPage} />,

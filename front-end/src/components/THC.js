@@ -1,11 +1,40 @@
 import { AreaChart, Area, Tooltip, XAxis, YAxis, Label } from "recharts";
+import React from "react";
+import axios from "axios";
+import { REACT_APP_API_URL } from './utils'
 
-function THC({ goToPage,  graphData }) {
+function THC({ goToPage, token  }) {
   var b = document.getElementsByTagName("svg");
   b[0]?.setAttribute("viewBox", "60 0 880 450");
-
+  const [loader, setLoader] = React.useState(true)
+  const [graphDataS, setGraphData] = React.useState([])
+  const getLastTenPredValues = async () => {
+    try {
+      const resp = await axios.get(
+        REACT_APP_API_URL + "/user/last-ten-predict/",
+        {
+          headers: {
+            Authorization: "Bearer " + token,
+          },
+        }
+      );
+      if(resp && resp.data 
+        ){
+          setGraphData(resp.data.predict_values)
+          setLoader(false)
+        }
+    } catch (err) {
+      console.log("error while getMachineData", err);
+    }
+  };
+  React.useEffect(() =>{
+    getLastTenPredValues()
+  },[])
+  const Spinner = () => <div className="loader"></div>;
+ 
   return (
     <div className="maindiv background">
+    {loader ? <Spinner/>:
       <div
         style={{
           // marginTop: "80px",
@@ -41,10 +70,10 @@ function THC({ goToPage,  graphData }) {
             }}
           ></div>
            <AreaChart
-            width={800}
-            height={390}
-            data={graphData}
-            margin={{ top: 5, right: 20, bottom: 5, left: 0 }}
+            width={1000}
+            height={400}
+            data={graphDataS}
+            margin={{ top: 5, left: 0 }}
           >
             <defs>
               <linearGradient id="colorUv" x1="0" y1="0" x2="0" y2="1">
@@ -54,14 +83,14 @@ function THC({ goToPage,  graphData }) {
             </defs>
             <Area
               type="monotone"
-              dataKey="energy"
+              dataKey="value"
               stroke="#2b61af"
               fill="url(#colorUv)"
             ></Area>
             <XAxis dataKey="time" tick={false}>
               <Label style={{ fontSize: "130%", fill: "black" }}>Time</Label>
             </XAxis>
-            <YAxis dataKey="energy" tick={false}>
+            <YAxis dataKey="value" tick={false}>
               <Label
                 style={{
                   textAnchor: "middle",
@@ -69,7 +98,7 @@ function THC({ goToPage,  graphData }) {
                   fill: "black",
                 }}
                 angle={270}
-                value={"Energy"}
+                value={"Predictions"}
               />
             </YAxis>
             <Tooltip />
@@ -92,6 +121,7 @@ function THC({ goToPage,  graphData }) {
           </button>
         </div>
       </div>
+    }
     </div>
   );
 }
