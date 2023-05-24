@@ -23,6 +23,7 @@ function Reference({ goToPage ,token, scanId}) {
       if(resp && resp.data && resp.data.predict_value
         ){
           setLoader(false)
+          goToPage(4)
         }
         else{
           setTimeout(() =>{
