@@ -1,1 +1,1 @@
-export const REACT_APP_API_URL = 'http://131.239.80.179/api';
+export const REACT_APP_API_URL = "https://api-preview.newtoninsights.app/";
