@@ -1,1 +1,1 @@
-export const REACT_APP_API_URL = "https://api-preview.newtoninsights.app/";
+export const REACT_APP_API_URL = "https://api-preview.newtoninsights.app";

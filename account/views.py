@@ -234,12 +234,14 @@ class LastTenPredictionView(APIView):
 
         if len(last_10_scans) >= 10:
             # If 10 records are present, return predict_value values based on created_at
-            predict_values = [scan.predict_value for scan in last_10_scans]
+            predict_values = [{'value': f'{scan.predict_value}', 'time': f'{scan.created_at}'} for scan in
+                              last_10_scans]
         else:
             # If fewer than 10 records are present, return predict_value of all records
-            predict_values = [scan.predict_value for scan in Scan.objects.all()]
+            predict_values = [{'value': f'{scan.predict_value}', 'time': f'{scan.created_at}'} for scan in
+                              Scan.objects.all()]
 
-        return Response({'predict_values': predict_values, 'msg': 'last 10 predicted values of scan'},
+        return Response({'msg': 'last 10 predicted values of scan', 'predict_values': predict_values},
                         status=status.HTTP_200_OK)
 
 
@@ -271,9 +273,13 @@ class ScanDataView(APIView):
         ScanData.objects.bulk_create(scan_data_list)
 
         try:
+            DB_USER = os.environ.get('DB_USER')
+            DB_PASSWORD = os.environ.get('DB_PASSWORD')
+            DB_HOST = os.environ.get('DB_HOST')
+            DB_NAME = os.environ.get('DB_NAME')
             # create instance of DataProcessor class
-            data_processor = DataProcessor(username='root', password='U$er123',
-                                           host='localhost', database='qtdb')
+            data_processor = DataProcessor(username=DB_USER, password=DB_PASSWORD,
+                                           host=DB_HOST, database=DB_NAME)
 
             # connect to database and retrieve data
             cnx, cursor = data_processor.connect_to_database()
@@ -287,7 +293,8 @@ class ScanDataView(APIView):
             cnx.close()
 
             # create instance of ModelTrainer class
-            processor = SavGolFilter(unprocessed_energy_data=latest_energy_sample)
+            processor = SavGolFilter(unprocessed_energy_data=latest_energy_sample,
+                                     excel_file_path='Example_Data_Processing_May7.xlsx')
             pred = processor.process_data()
 
             print('Successfully getting the prediction')

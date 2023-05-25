@@ -49,7 +49,7 @@ CORS_ALLOW_ALL_ORIGINS = True
 CSRF_TRUSTED_ORIGINS = ['http://localhost', 'http://127.0.0.1:8000/', 'http://131.239.80.179/', 'http://www.newtoninsights.app/',
                         'http://newtoninsights.app/']
 
-CHANNELS_WS_KEEPALIVE = 120
+CHANNELS_WS_KEEPALIVE = 1200
 # SWAGGER_SETTINGS = {
 #     'USE_SESSION_AUTH': False,
 #     'SECURITY_DEFINITIONS': {
