@@ -22,7 +22,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
             return user_id
         except Exception as e:
             # Handle invalid token
-            raise Exception('Error: {e}')
+            raise Exception(f'Error: {e}')
 
     async def receive(self, text_data):
         global connections
