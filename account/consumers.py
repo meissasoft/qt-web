@@ -37,7 +37,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
             del text_data_json['token']
             headers = {'Authorization': f'Bearer {bearer_token}'} if bearer_token else {}
             async with aiohttp.ClientSession() as session:
-                async with session.post(f'{ngrok_url}/user/user-connection/', data=text_data_json,
+                async with session.post('http://localhost:8000/user/user-connection/', data=text_data_json,
                                         headers=headers) as resp:
                     # Do something with the response, like sending it back to the WebSocket client
                     response = {'message': 'user connection created successfully'}
@@ -63,7 +63,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
                             'scan_id': scan_id, 'token': bearer_token}
             headers = {'Authorization': f'Bearer {bearer_token}'} if bearer_token else {}
             async with aiohttp.ClientSession() as session:
-                async with session.post(f'{ngrok_url}/user/scan-data/', data=request_data, headers=headers) as resp:
+                async with session.post('http://localhost:8000/user/scan-data/', data=request_data,
+                                        headers=headers) as resp:
                     # Do something with the response, like sending it back to the WebSocket client
                     response = {'message': 'data scanned successfully'}
                     # send message to server
@@ -76,7 +77,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
             text_data_json['machine_name'] = f'{[machine_name]}'
             headers = {'Authorization': f'Bearer {bearer_token}'} if bearer_token else {}
             async with aiohttp.ClientSession() as session:
-                async with session.put(f'{ngrok_url}/user/user-connection/', data=text_data_json,
+                async with session.put('http://localhost:8000/user/user-connection/', data=text_data_json,
                                        headers=headers) as resp:
                     # Do something with the response, like sending it back to the WebSocket client
                     response = {'message': 'user connection updated successfully'}
