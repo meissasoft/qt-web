@@ -4,7 +4,7 @@ import { AreaChart, Area, Tooltip, XAxis, YAxis, Label } from "recharts";
 import Live from "../assets/icons/live.png";
 import Data from "../assets/icons/data.png";
 
-function WhatToDo({ goToPage, token, graphData, setScanId }) {
+function WhatToDo({ goToPage, token, machine, setScanId }) {
   var b = document.getElementsByTagName("svg");
   b[0]?.setAttribute("viewBox", "60 0 880 450");
   const liveData = async () => {
@@ -13,6 +13,7 @@ function WhatToDo({ goToPage, token, graphData, setScanId }) {
         REACT_APP_API_URL + "/user/is-scan/",
         {
           is_scan: "yes",
+          machine_name:machine
         },
         {
           headers: {

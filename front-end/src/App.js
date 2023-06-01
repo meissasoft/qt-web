@@ -20,6 +20,7 @@ function App() {
   const [page, setPage] = useState(0);
   const [token, setToken] = useState("");
   const [scanId, setScanId] = useState("");
+  const [machine, setMachine] = useState("");
   const [graphData, setGraphData] = useState([]);
 
   const goToPage = useCallback((pageNumber) => {
@@ -39,8 +40,8 @@ function App() {
     0: <Intro goToPage={goToPage} />,
     1: <Login goToPage={goToPage} setToken={setToken} />,
     2: <Signup goToPage={goToPage} setToken={setToken} />,
-    3: <WhatToDo goToPage={goToPage} token={token} graphData={graphData} setScanId={setScanId}/>,
-    4: <THC goToPage={goToPage} graphData={graphData}  token={token}/>,
+    3: <WhatToDo goToPage={goToPage} token={token} setScanId={setScanId} machine={machine}/>,
+    4: <THC goToPage={goToPage} graphData={graphData}  token={token} machine={machine}/>,
     5: <Reference goToPage={goToPage} token={token} scanId={scanId} />,
     6: <Ensure goToPage={goToPage} />,
     7: <RefSuccess goToPage={goToPage} />,
@@ -49,7 +50,7 @@ function App() {
     10: <PureSolvent goToPage={goToPage} />,
     11: <DisplayThc goToPage={goToPage} />,
     12: <Sure goToPage={goToPage} />,
-    13: <List goToPage={goToPage}  token={token}  setMachineGraphData={setMachineGraphData} />,
+    13: <List goToPage={goToPage}  token={token}  setMachine={setMachine} />,
     14: <Welcome goToPage={goToPage} />,
   };
 
