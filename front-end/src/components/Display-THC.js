@@ -2,20 +2,7 @@ import React from "react";
 function DisplayThc({ goToPage }) {
   return (
     <div className="maindiv2 background">
-      <div
-        className="percent"
-        
-      >
-        <input
-          placeholder="  type here"
-          style={{
-            width: "500px",
-            height: "40px",
-           
-            borderRadius: "10px",
-          }}
-        />
-
+      <div className="percent">
         <div
           style={{
             color: "black",
@@ -25,10 +12,7 @@ function DisplayThc({ goToPage }) {
         >
           TOTAL THC
         </div>
-        <p
-          className="percentage"
-         
-        >
+        <p className="percentage">
           31.6
           <span
             style={{ color: "white", fontSize: "100px", fontWeight: "bold" }}
@@ -42,7 +26,10 @@ function DisplayThc({ goToPage }) {
             Go to Machine List
           </button> */}
       </div>
-      <button className="footer" onClick={()=>goToPage(0)}> Go To Home</button>
+      <button className="footer" onClick={() => goToPage(14)}>
+        {" "}
+        Go To Home
+      </button>
     </div>
   );
 }

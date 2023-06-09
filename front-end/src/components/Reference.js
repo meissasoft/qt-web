@@ -92,12 +92,12 @@ function Reference({ goToPage ,token, scanId}) {
           <button className="btn" onClick={() => goToPage(6)}>
             Yep, get a reference!
           </button>
-          <button className="btn" onClick={() => goToPage(6)}>
+          <button className="btn" onClick={() => goToPage(3)}>
             Nope, use old reference
           </button>
         </div>
       </div>
-      <button className="footer" onClick={()=>goToPage(0)}> Go To Home</button>
+      <button className="footer" onClick={()=>goToPage(14)}> Go To Home</button>
      </>
      }
     </div>

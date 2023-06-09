@@ -24,7 +24,7 @@ function WhatToDo({ goToPage, token, machine, setScanId }) {
       );
       if (resp.data && resp.status === 201 && resp.data.scan_id) {
         setScanId(resp.data.scan_id)
-        goToPage(5);
+        goToPage(6);
       }
     } catch (err) {
       console.log("error while login", err);
@@ -116,7 +116,7 @@ function WhatToDo({ goToPage, token, machine, setScanId }) {
             </YAxis>
             <Tooltip />
           </AreaChart> */}
-          <button className="footer" onClick={() => goToPage(0)}>
+          <button className="footer" onClick={() => goToPage(14)}>
             {" "}
             Go To Home
           </button>

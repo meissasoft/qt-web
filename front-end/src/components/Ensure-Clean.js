@@ -10,12 +10,12 @@ function EnsureClean({goToPage}) {
     <button className='btn' onClick={()=>goToPage(10)}>
     Yes, I mean it!
     </button>
-    <button className='btn' onClick={()=>goToPage(10)}>
+    <button className='btn' onClick={()=>goToPage(3)}>
     Maybe not...
     </button>
 </div>
       </div>
-      <button className="footer" onClick={()=>goToPage(0)}> Go To Home</button>
+      <button className="footer" onClick={()=>goToPage(14)}> Go To Home</button>
     </div>
   )
 }

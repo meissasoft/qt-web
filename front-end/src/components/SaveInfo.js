@@ -14,7 +14,7 @@ function SaveInfo({goToPage}) {
             }} onClick={()=>goToPage(9)}>
     Go
       </button>
-      <button className="footer" onClick={()=>goToPage(0)}> Go To Home</button>
+      <button className="footer" onClick={()=>goToPage(14)}> Go To Home</button>
     </div>
   )
 }

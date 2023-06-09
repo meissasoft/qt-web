@@ -23,7 +23,7 @@ function RefSuccess({ goToPage }) {
       >
         Let’s Get Going
       </button>
-      <button className="footer" onClick={() => goToPage(0)}>
+      <button className="footer" onClick={() => goToPage(14)}>
         {" "}
         Go To Home
       </button>

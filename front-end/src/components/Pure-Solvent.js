@@ -8,15 +8,15 @@ function PureSolvent({goToPage}) {
 solvent? (no biomass added)</p>
 <p style={{fontSize:"22px" }}>Press when ready to start live data</p>
 <div style={{width:"50%" , display :"flex" ,justifyContent:"space-around" , marginTop:"20px"}} >
-  <button className='btn' style={{padding:"1rem 2rem"}} onClick={()=>goToPage(11)}>
+  <button className='btn' style={{padding:"1rem 2rem"}} onClick={()=>goToPage(5)}>
   Yes, pure solvent now!
   </button>
-  <button className='btn' style={{padding:"1rem 2rem"}} onClick={()=>goToPage(11)}>
+  <button className='btn' style={{padding:"1rem 2rem"}} onClick={()=>goToPage(3)}>
   No, it’s not totally clean
   </button>
 </div>
     </div>
-    <button className="footer" onClick={()=>goToPage(0)}> Go To Home</button>
+    <button className="footer" onClick={()=>goToPage(14)}> Go To Home</button>
   </div>
   )
 }
