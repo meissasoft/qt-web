@@ -4,7 +4,7 @@ import axios from "axios";
 import { REACT_APP_API_URL } from './utils'
 // import Live from "../assets/icons/live.png";
 // import Data from "../assets/icons/data.png";
-function Reference({ goToPage ,token, scanId}) {
+function Reference({ goToPage ,token, scanId, setCheckData}) {
   const Spinner = () => <div className="loader"></div>;
   const [loader, setLoader] = React.useState(true)
 
@@ -23,6 +23,7 @@ function Reference({ goToPage ,token, scanId}) {
       if(resp && resp.data && resp.data.predict_value
         ){
           setLoader(false)
+          setCheckData(true)
           goToPage(4)
         }
         else{

@@ -21,6 +21,7 @@ function App() {
   const [token, setToken] = useState("");
   const [scanId, setScanId] = useState("");
   const [machine, setMachine] = useState("");
+  const [check, setCheck] = useState(false);
   const [graphData, setGraphData] = useState([]);
 
   const goToPage = useCallback((pageNumber) => {
@@ -41,8 +42,8 @@ function App() {
     1: <Login goToPage={goToPage} setToken={setToken} />,
     2: <Signup goToPage={goToPage} setToken={setToken} />,
     3: <WhatToDo goToPage={goToPage} token={token} setScanId={setScanId} machine={machine}/>,
-    4: <THC goToPage={goToPage} graphData={graphData}  token={token} machine={machine}/>,
-    5: <Reference goToPage={goToPage} token={token} scanId={scanId} />,
+    4: <THC goToPage={goToPage} graphData={graphData}  token={token} machine={machine} checkData = {check}/>,
+    5: <Reference goToPage={goToPage} token={token} scanId={scanId} setCheckData = {setCheck}/>,
     6: <Ensure goToPage={goToPage} />,
     7: <RefSuccess goToPage={goToPage} />,
     8: <SaveInfo goToPage={goToPage} />,

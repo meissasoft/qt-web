@@ -3,7 +3,8 @@ import React from "react";
 import axios from "axios";
 import { REACT_APP_API_URL } from "./utils";
 
-function THC({ goToPage, token, machine }) {
+function THC({ goToPage, token, machine , checkData }) {
+  console.log("hello");
   var b = document.getElementsByTagName("svg");
   b[0]?.setAttribute("viewBox", "60 0 880 450");
   const [loader, setLoader] = React.useState(true);
@@ -127,6 +128,7 @@ function THC({ goToPage, token, machine }) {
               </button>
             </div>
           </div>
+      {checkData && (
           <div className="percent">
             <div
               style={{
@@ -150,6 +152,7 @@ function THC({ goToPage, token, machine }) {
               </span>
             </p>
           </div>
+      )}
           <button
             className="footer"
             onClick={() => goToPage(14)}
