@@ -94,10 +94,12 @@ function List({ goToPage, token, setMachine }) {
           );
         })}
       </div>
-      <button className="footer" onClick={() => goToPage(0)}>
-        {" "}
-        Go To Home
-      </button>
+      {val?.connected_user_info?
+       <button className="footer" onClick={() => goToPage(14)}>
+       {" "}
+       Go To Home
+     </button>:""}
+     
     </div>
   );
 }
