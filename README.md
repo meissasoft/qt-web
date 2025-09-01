@@ -30,3 +30,5 @@ This README file provides information on how to run the qt-web on your local mac
 #### Run the project script using the following command.
 
 * python manage.py runserver
+
+<!-- Security scan triggered at 2025-09-01 23:41:49 -->
